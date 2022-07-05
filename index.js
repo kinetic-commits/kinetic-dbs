@@ -15,6 +15,7 @@ const dotenv = require('dotenv');
 // const disco = require('./routes/disco');
 // const form74 = require('./routes/form74');
 // const order = require('./routes/order');
+const Pool = require('pg').Pool;
 
 // .ENV PATH
 dotenv.config({ path: 'config/.env' });
@@ -35,7 +36,18 @@ app.use(expressSanitizer());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res)=>{
-  res.status(200).json({ name: 'welcome guys' })
+   const pool = new Pool({
+    user: process.env.DB_USER,
+    password: process.env.DB_WORD,
+    host: process.env.DB_URI,
+    port: parseInt(process.env.DB_PORT),
+    database: process.env.DB_NAME,
+  });
+
+  const rs = await pool.query('select * from user_data');
+  console.log(rs);
+
+  res.status(200).json({ rs })
 })
 
 //Initialize All Created Routes
