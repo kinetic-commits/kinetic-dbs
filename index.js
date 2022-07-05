@@ -48,7 +48,7 @@ app.get('/', async (req, res)=>{
      const { rows } = await pool.query(`SELECT EXISTS(
           SELECT FROM information_schema.tables
           WHERE table_schema = 'public'
-          AND table_name = '${schema}'
+          AND table_name = 'user_data'
       )`);
 
   res.status(200).json({ rs: rows })
