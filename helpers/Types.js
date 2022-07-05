@@ -8,6 +8,8 @@ module.exports = {
   FOURTHCLASS: () => process.env.CLASSTAG.split(',')[5],
   FIFTHCLASS: () => process.env.CLASSTAG.split(',')[6],
   SIXCLASS: () => process.env.CLASSTAG.split(',')[7],
+  NM: () => process.env.NM,
+  ND: () => process.env.ND,
   CREATE_URL: '/api/v1/user',
   LOGIN_URL: '/api/v1/user/login',
   NM_URL: '/api/v1/map',
