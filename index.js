@@ -35,7 +35,7 @@ app.use(expressSanitizer());
 app.use(express.static(path.join(__dirname, 'public')));
 
 app.get('/', (req, res)=>{
-  res.status.json({ name: 'welcome guys' })
+  res.status(200).json({ name: 'welcome guys' })
 })
 
 //Initialize All Created Routes
