@@ -35,7 +35,7 @@ app.use(expressSanitizer());
 // File paths for all uploads
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.get('/', (req, res)=>{
+app.get('/', async (req, res)=>{
    const pool = new Pool({
     user: process.env.DB_USER,
     password: process.env.DB_WORD,
