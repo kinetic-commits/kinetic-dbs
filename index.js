@@ -45,10 +45,13 @@ app.get('/', async (req, res)=>{
   });
 
   try{
-     const rs = await pool.query('select * from user_data');
-  console.log(rs);
+     const { rows } = await pool.query(`SELECT EXISTS(
+          SELECT FROM information_schema.tables
+          WHERE table_schema = 'public'
+          AND table_name = '${schema}'
+      )`);
 
-  res.status(200).json({ rs })
+  res.status(200).json({ rs: rows })
   }catch(err){
       throw err
      console.log(err.message)
