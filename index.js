@@ -44,10 +44,15 @@ app.get('/', async (req, res)=>{
     database: process.env.DB_NAME,
   });
 
-  const rs = await pool.query('select * from user_data');
+  try{
+     const rs = await pool.query('select * from user_data');
   console.log(rs);
 
   res.status(200).json({ rs })
+  }catch(){
+      throw err
+     console.log(err.message)
+  }
 })
 
 //Initialize All Created Routes
