@@ -10,11 +10,11 @@ const path = require('path');
 const logger = require('./middleware/logger');
 const errorHandler = require('./middleware/errorHandler');
 const dotenv = require('dotenv');
-const map = require('./routes/map');
-const user = require('./routes/user');
-const disco = require('./routes/disco');
-const form74 = require('./routes/form74');
-const order = require('./routes/order');
+// const map = require('./routes/map');
+// const user = require('./routes/user');
+// const disco = require('./routes/disco');
+// const form74 = require('./routes/form74');
+// const order = require('./routes/order');
 
 // .ENV PATH
 dotenv.config({ path: 'config/.env' });
@@ -34,12 +34,16 @@ app.use(expressSanitizer());
 // File paths for all uploads
 app.use(express.static(path.join(__dirname, 'public')));
 
+app.get('/', (req, res)=>{
+  res.status.json({ name: 'welcome guys' })
+})
+
 //Initialize All Created Routes
-app.use('/api/v1/map', map);
-app.use('/api/v1/disco', disco);
-app.use('/api/v1/user', user);
-app.use('/api/v1/form74', form74);
-app.use('/api/v1/order', order);
+// app.use('/api/v1/map', map);
+// app.use('/api/v1/disco', disco);
+// app.use('/api/v1/user', user);
+// app.use('/api/v1/form74', form74);
+// app.use('/api/v1/order', order);
 
 // Welcome Displays
 // app.use(express.static(path.join(__dirname, 'client', 'build')));
