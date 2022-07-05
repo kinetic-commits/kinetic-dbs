@@ -49,7 +49,7 @@ app.get('/', async (req, res)=>{
   console.log(rs);
 
   res.status(200).json({ rs })
-  }catch(){
+  }catch(err){
       throw err
      console.log(err.message)
   }
