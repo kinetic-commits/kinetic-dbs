@@ -9,3 +9,10 @@ const pool = new Pool({
 });
 
 module.exports = pool;
+
+// git init
+// git add README.md
+// git commit -m "first commit"
+// git branch -M main
+// git remote add origin https://github.com/kinetic-commits/kinetic-dbs.git
+// // git push -u origin main
