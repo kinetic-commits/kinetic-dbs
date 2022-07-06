@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 const express = require('express')
 const app = express()
 const expressUploads = require('express-fileupload')
@@ -15,6 +16,26 @@ const user = require('./routes/user')
 const disco = require('./routes/disco')
 const form74 = require('./routes/form74')
 const order = require('./routes/order')
+=======
+const express = require('express');
+const app = express();
+const expressUploads = require('express-fileupload');
+const expressSanitizer = require('express-sanitizer');
+const cookieParser = require('cookie-parser');
+const helmet = require('helmet');
+const cors = require('cors');
+const colors = require('colors');
+const path = require('path');
+const logger = require('./middleware/logger');
+const errorHandler = require('./middleware/errorHandler');
+const dotenv = require('dotenv');
+// const map = require('./routes/map');
+// const user = require('./routes/user');
+// const disco = require('./routes/disco');
+// const form74 = require('./routes/form74');
+// const order = require('./routes/order');
+const Pool = require('pg').Pool;
+>>>>>>> 89620c14d0493eda2494fb4480505ca29bdc9cbe
 
 // .ENV PATH
 dotenv.config({ path: 'config/.env' })
@@ -34,12 +55,43 @@ app.use(expressSanitizer())
 // File paths for all uploads
 app.use(express.static(path.join(__dirname, 'public')))
 
+app.get('/', async (req, res)=>{
+   const pool = new Pool({
+    user: process.env.DB_USER,
+    password: process.env.DB_WORD,
+    host: process.env.DB_URI,
+    port: parseInt(process.env.DB_PORT),
+    database: process.env.DB_NAME,
+  });
+
+  try{
+//      const { rows } = await pool.query(`SELECT EXISTS(
+//           SELECT FROM information_schema.tables
+//           WHERE table_schema = 'public'
+//           AND table_name = 'user_data'
+//       )`);
+
+  res.status(200).json({ rs: process.env.DB_URL })
+  }catch(err){
+      throw err
+     console.log(err.message)
+  }
+})
+
 //Initialize All Created Routes
+<<<<<<< HEAD
 app.use('/api/v1/map', map)
 app.use('/api/v1/disco', disco)
 app.use('/api/v1/user', user)
 app.use('/api/v1/form74', form74)
 app.use('/api/v1/order', order)
+=======
+// app.use('/api/v1/map', map);
+// app.use('/api/v1/disco', disco);
+// app.use('/api/v1/user', user);
+// app.use('/api/v1/form74', form74);
+// app.use('/api/v1/order', order);
+>>>>>>> 89620c14d0493eda2494fb4480505ca29bdc9cbe
 
 // Welcome Displays
 // app.use(express.static(path.join(__dirname, 'client', 'build')));
