@@ -1,6 +1,6 @@
 const path = require('path')
 const { csvGetter } = require('./essential')
-const { sendError } = require('../context/_task/_task_tools')
+const { sendError, ResponseBack } = require('../context/_task/_task_tools')
 const ErrorCatcher = require('../utils/errorCatcher')
 const {
   body_recognition,
@@ -10,22 +10,38 @@ const ControllerProcess = require('../controller/Controller')
 
 exports.readCSVFile = async ({ req, res, next }) => {
   const { user, files } = req || {}
-  if (!user) return sendError({ message })
-  if (!files) return sendError({ errorMsg: 'Please upload a file', message })
+  const message = {
+    error: undefined,
+    success: false,
+    data: undefined,
+    code: 500,
+  }
+
+  if (!user) {
+    message.error = 'Unauthorized user'
+    return ResponseBack({ req, rs: message, res, next })
+  }
+  if (!files) {
+    message.error = 'Pleas upload a file'
+    return ResponseBack({ req, rs: message, res, next })
+  }
   const file = files.file
   const time = Date.now()
 
-  if (!file.mimetype === 'text/csv')
-    return sendError({ errorMsg: 'Please upload a CSV file', message })
+  if (!file.mimetype === 'text/csv') {
+    message.error = 'Please upload a CSV file'
+    ;(message.code = 400), (message.success = false)
+    return ResponseBack({ req, rs: message, res, next })
+  }
 
-  if (file.size > process.env.FILE_SIZE_MAX)
-    return sendError({
-      message,
-      errorMsg: `Please upload a file less than equal to: ${
-        process.env.FILE_SIZE_MAX / 1000000
-      }MB`,
-    })
-
+  if (file.size > process.env.FILE_SIZE_MAX) {
+    message.error = `Please upload a file less than equal to: ${
+      process.env.FILE_SIZE_MAX / 1000000
+    }MB`
+    message.code = 400
+    message.success = false
+    return ResponseBack({ req, rs: message, res, next })
+  }
   file.name = `file_${time}${path.parse(file.name).ext}`
   const filePath = `${process.env.FILE_UPLOAD_PATH}/${file.name}`
   file.mv(filePath, async (err) => {
