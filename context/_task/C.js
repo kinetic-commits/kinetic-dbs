@@ -61,8 +61,8 @@ const POST = async (req) => {
         const rs = await TryAndCatch(User, body, message)
         return rs
       }
-    } else if (url === NM_URL && role === NM()) return mmps(req, message)
-    else if (url === ND_URL && role === ND()) return ndps(req, message)
+    } else if (url === NM_URL && role === NM()) return await mmps(req, message)
+    else if (url === ND_URL && role === ND()) return await ndps(req, message)
     else if (url === CS_URL && (role === CS() || role === ND())) {
       const rs = await TryAndCatch(Form74, body, message)
       if (message.success) {

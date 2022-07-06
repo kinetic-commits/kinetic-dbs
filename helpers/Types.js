@@ -9,6 +9,7 @@ module.exports = {
   FIFTHCLASS: () => process.env.CLASSTAG.split(',')[6],
   SIXCLASS: () => process.env.CLASSTAG.split(',')[7],
   NM: () => process.env.NM,
+  CS: () => process.env.CS,
   ND: () => process.env.ND,
   CREATE_URL: '/api/v1/user',
   LOGIN_URL: '/api/v1/user/login',

@@ -5,7 +5,7 @@ const { body_recognition } = require('../../_task/bodyApplicationParser')
 const { TryAndCatch, CheckMatches } = require('../../_task/_task_tools')
 
 exports.mmpgt = async (req, message) => {
-  const { hasId, name, abbrv } = req.QUETIES
+  const { hasId, name, abbrv } = req.QUERIES
   if (hasId) {
     const data = body_recognition({
       [name || 'meter_number']: hasId,
@@ -30,7 +30,7 @@ exports.mmpgt = async (req, message) => {
 }
 
 exports.ndpgt = async (req, message) => {
-  const { hasId, name, abbrv, queries } = req.QUETIES
+  const { hasId, name, abbrv, queries } = req.QUERIES
 
   if (hasId) {
     const data = body_recognition({

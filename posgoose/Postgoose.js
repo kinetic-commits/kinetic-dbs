@@ -197,21 +197,21 @@ Postgoose.prototype.isExist = async function () {
   const { rows } = await pool.query(`SELECT EXISTS(
           SELECT FROM information_schema.tables
           WHERE table_schema = 'public'
-          AND table_name = '${this.schema}'
+          AND table_name = '${this.schemaName}'
       )`)
 
-  if (!rows) {
+  const row = rows[0].exists
+  if (!row) {
     await pool.query(`create table ${this.schemaName} (${this.schema})`)
     if (this.virtual.length > 0) {
-      this.virtual.forEach(async (d) => {
-        await pool.query(`create table ${d.table} (${d.tableStructure})`)
-      })
+      for (let l = 0; l < this.virtual.length; l++) {
+        const { table, tableStructure } = this.virtual[l]
+        await pool.query(`create table ${table} (${tableStructure})`)
+      }
     }
   }
 
   this.pool = this.pool || pool
-
-  return rows[0].exists
 }
 
 Postgoose.prototype.createDefaults = async function (table_data) {

@@ -5,7 +5,7 @@ const { body_recognition } = require('../../_task/bodyApplicationParser')
 const { TryAndCatch, CheckMatches } = require('../../_task/_task_tools')
 
 exports.mmpp = async (req, message) => {
-  const { QUETIES: q, body, user } = req
+  const { QUERIES: q, body, user } = req
   const parsed = body_recognition({
     [q.name || 'carton_id']: q.hasId,
     allocation_status: 'In store',
@@ -56,7 +56,7 @@ exports.mmpp = async (req, message) => {
 }
 
 exports.ndpp = async (req, message) => {
-  const { QUETIES: q, body, user } = req
+  const { QUERIES: q, body, user } = req
   const parsed = body_recognition({
     [q.name || 'carton_id']: q.hasId,
     allocation_status: 'Allocated',

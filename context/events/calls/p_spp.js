@@ -64,4 +64,6 @@ exports.ndps = async (req, message) => {
       email: user.email,
     })
   }
+
+  return message
 }

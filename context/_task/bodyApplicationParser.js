@@ -1,41 +1,41 @@
-const { NM, FIRSTCLASS, CREATE_URL } = require('../../helpers/Types');
-const { makeObject } = require('../../posgoose/tool');
-const { _accountID: _ide } = require('../../utils/idGen');
-const { isArray } = require('../essentials/usables');
+const { NM, FIRSTCLASS, CREATE_URL } = require('../../helpers/Types')
+const { makeObject } = require('../../posgoose/tool')
+const { _accountID: _ide } = require('../../utils/idGen')
+const { isArray } = require('../essentials/usables')
 
 const bodyAppParser = (req) => {
-  const rs = ['POST', 'PUT', 'PATCH', 'DELETE'];
-  const ID = _ide();
-  const { originalUrl: url, method } = req;
-  const _ = CREATE_URL === url && method === 'POST';
+  const rs = ['POST', 'PUT', 'PATCH', 'DELETE']
+  const ID = _ide()
+  const { originalUrl: url, method } = req
+  const _ = CREATE_URL === url && method === 'POST'
 
   if (rs.includes(method)) {
-    const user = req.user || {};
-    const av = user ? user.abbrv : undefined;
-    const ue = user ? user.email : undefined;
+    const user = req.user || {}
+    const av = user ? user.abbrv : undefined
+    const ue = user ? user.email : undefined
 
-    const body = isArray(req.body) ? req.body : [req.body];
+    const body = isArray(req.body) ? req.body : [req.body]
     const bum = body.map((data) =>
       app_parser({
         ...data,
         av,
         ue,
-        store_id: ID,
+        store_id: data.store_id || ID,
         role: _ ? data.role : user.role,
       })
-    );
+    )
 
-    const done = bum.map((c) => makeObject([c]));
-    return isArray(req.body) ? done : done[0];
-  } else return undefined;
-};
+    const done = bum.map((c) => makeObject([c]))
+    return isArray(req.body) ? done : done[0]
+  } else return undefined
+}
 
 const app_parser = (data, ign) => {
-  const { av, ue, abbrv, email, role } = data || {};
-  const who = abbrv || (av && !ign) ? (abbrv || av).toUpperCase() : undefined;
-  const who_email = email || (ue && !ign) ? email || ue : undefined;
-  const allocated_to = data.allocation_to || data.allocationTo;
-  const role_ = [NM(), ...FIRSTCLASS()].includes(role) ? who : undefined;
+  const { av, ue, abbrv, email, role } = data || {}
+  const who = abbrv || (av && !ign) ? (abbrv || av).toUpperCase() : undefined
+  const who_email = email || (ue && !ign) ? email || ue : undefined
+  const allocated_to = data.allocation_to || data.allocationTo
+  const role_ = [NM(), ...FIRSTCLASS()].includes(role) ? who : undefined
   // console.log(data);
   // console.log(who);
 
@@ -140,39 +140,39 @@ const app_parser = (data, ign) => {
     disco_acknowledgement: data.disco_acknowledgement,
     allocation_status: data.allocation_status,
     user_email: ue || who_email,
-  };
-};
+  }
+}
 
 const _meters = (data, role) => {
   const mapAllocationTo = data.map_allocation_to
     ? data.map_allocation_to !== 'undefined'
       ? data.map_allocation_to
       : undefined
-    : undefined;
+    : undefined
   const discoAllocationTo = data.disco_allocation_to
     ? data.disco_allocation_to !== 'undefined'
       ? data.disco_allocation_to
       : undefined
-    : undefined;
+    : undefined
 
   const allocationStatus = data.allocation_status
     ? data.allocation_status !== 'undefined'
       ? data.allocation_status
       : undefined
-    : undefined;
+    : undefined
 
   const installationStatus = data.installation_status
     ? data.installation_status !== 'undefined'
       ? data.installation_status
       : undefined
-    : undefined;
+    : undefined
 
   const role_ =
     role === 'DISCO'
       ? allocationStatus === 'Allocated' && !discoAllocationTo
         ? 'In store'
         : allocationStatus
-      : allocationStatus;
+      : allocationStatus
 
   return {
     sequence: data.sequence,
@@ -207,20 +207,20 @@ const _meters = (data, role) => {
     isReceived: role === 'MAP' ? true : data.disco_acknowledgement,
     meterOwner: data.meter_owner,
     phase: data.phase,
-  };
-};
+  }
+}
 
 const body_recognition = (data) => {
-  const data_ = { ...data, av: undefined, ue: undefined };
-  const check = app_parser(data_);
-  const done = makeObject([check]);
-  return done;
-};
+  const data_ = { ...data, av: undefined, ue: undefined }
+  const check = app_parser(data_)
+  const done = makeObject([check])
+  return done
+}
 
 const meter_data_parser = (data, role) => {
-  const check = _meters(data, role);
-  const done = makeObject([check]);
-  return done;
-};
+  const check = _meters(data, role)
+  const done = makeObject([check])
+  return done
+}
 
-module.exports = { bodyAppParser, body_recognition, meter_data_parser };
+module.exports = { bodyAppParser, body_recognition, meter_data_parser }

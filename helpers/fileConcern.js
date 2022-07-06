@@ -2,7 +2,10 @@ const path = require('path')
 const { csvGetter } = require('./essential')
 const { sendError } = require('../context/_task/_task_tools')
 const ErrorCatcher = require('../utils/errorCatcher')
-const { body_recognition } = require('../context/_task/bodyApplicationParser')
+const {
+  body_recognition,
+  bodyAppParser,
+} = require('../context/_task/bodyApplicationParser')
 const ControllerProcess = require('../controller/Controller')
 
 exports.readCSVFile = async ({ req, res, next }) => {
@@ -28,8 +31,10 @@ exports.readCSVFile = async ({ req, res, next }) => {
   file.mv(filePath, async (err) => {
     if (err) return next(new ErrorCatcher(err.message, 500))
     const csv = csvGetter(filePath)
-    const bdy = body_recognition(csv)
+    req.body = csv
+    const bdy = bodyAppParser(req)
     req.body = bdy
+
     return ControllerProcess({ req, res, next })
   })
 }

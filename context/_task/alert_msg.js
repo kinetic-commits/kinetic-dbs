@@ -1,5 +1,5 @@
-const IssueLoggerSchema = require('../../model/IssueLogger');
-const { _transformerID, _ide } = require('../../utils/idGen');
+const IssueLoggerSchema = require('../../model/IssueLogger')
+const { _transformerID, _ide } = require('../../utils/idGen')
 
 const create_alert_msg = async ({
   sender,
@@ -10,18 +10,18 @@ const create_alert_msg = async ({
   comment,
   email,
 }) => {
-  const id = _transformerID();
+  const id = _transformerID()
   const data = {
     sender,
     receiver,
     logger_type,
     email,
-  };
+  }
 
   if (!sender || !receiver || !logger_type || !email)
-    throw new Error(`Order creation failed: ${JSON.stringify(data)}`);
+    throw new Error(`Order creation failed: ${JSON.stringify(data)}`)
 
-  const rs = await IssueLoggerSchema.create({
+  await IssueLoggerSchema.create({
     sender,
     receiver,
     logger_type: logger_type,
@@ -31,9 +31,7 @@ const create_alert_msg = async ({
     uploaded_by: sender,
     comment,
     logger_id: _ide(),
-  });
+  })
+}
 
-  console.log(rs);
-};
-
-module.exports = { create_alert_msg };
+module.exports = { create_alert_msg }
