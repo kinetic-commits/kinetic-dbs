@@ -37,13 +37,17 @@ Postgoose.prototype.Schema = function (item) {
 }
 
 Postgoose.prototype.createConnection = async () => {
+  // const pool = new Pool({
+  //   user: process.env.DB_USER,
+  //   password: process.env.DB_WORD,
+  //   host: process.env.DB_URI,
+  //   port: parseInt(process.env.DB_PORT),
+  //   database: process.env.DB_NAME,
+  //   max: 20,
+  // })
   const pool = new Pool({
-    user: process.env.DB_USER,
-    password: process.env.DB_WORD,
-    host: process.env.DB_URI,
-    port: parseInt(process.env.DB_PORT),
-    database: process.env.DB_NAME,
-    max: 20,
+    connectionString: process.env.DATABASE_URL,
+    ssl: true,
   })
   this.pool = pool
   return pool
