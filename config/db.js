@@ -1,18 +1,28 @@
-const Pool = require('pg').Pool;
+// const { Pool } = require('pg')
+// const Types = require('../helpers/Types')
+// console.log(Types.DB_WORD())
+// const pool = new Pool({
+//   user: Types.DB_USER(),
+//   password: Types.DB_WORD(),
+//   host: Types.DB_URI(),
+//   port: parseInt(Types.DB_PORT()),
+//   database: Types.DB_NAME(),
+//   max: 22,
+// })
 
-const pool = new Pool({
-  user: process.env.DB_USER,
-  password: process.env.DB_WORD,
-  host: process.env.DB_URI,
-  port: process.env.DB_PORT,
-  database: process.env.DB_NAME,
-});
+// module.exports = pool
 
-module.exports = pool;
-
-// git init
-// git add README.md
-// git commit -m "first commit"
-// git branch -M main
-// git remote add origin https://github.com/kinetic-commits/kinetic-dbs.git
-// // git push -u origin main
+/* const db = await postgoose.connect({
+      user: process.env.DB_USER,
+      password: process.env.DB_WORD,
+      host: process.env.DB_URI,
+      port: parseInt(process.env.DB_PORT),
+      database: process.env.DB_NAME,
+    }); 
+    user: DB_USER(),
+    password: Types.DB_WORD(),
+    host: Types.DB_URI(),
+    port: parseInt(Types.DB_PORT()),
+    database: Types.DB_NAME(),
+    max: 22
+    */

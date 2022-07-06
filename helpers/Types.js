@@ -1,7 +1,7 @@
 module.exports = {
   FIRSTCLASS: () => {
-    const en = process.env.CLASSTAG.split(',');
-    return [en[0], en[1], en[2]];
+    const en = process.env.CLASSTAG.split(',')
+    return [en[0], en[1], en[2]]
   },
   SECONDCLASS: () => process.env.CLASSTAG.split(',')[3],
   THIRDCLASS: () => process.env.CLASSTAG.split(',')[4],
@@ -18,4 +18,4 @@ module.exports = {
   ND_URL_CSV: '/api/v1/disco/photo-upload',
   CS_URL: '/api/v1/form74',
   ISSUES: '/api/v1/order',
-};
+}
