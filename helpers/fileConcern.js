@@ -1,11 +1,9 @@
 const path = require('path')
+const fs = require('fs')
 const { csvGetter } = require('./essential')
-const { sendError, ResponseBack } = require('../context/_task/_task_tools')
+const { ResponseBack } = require('../context/_task/_task_tools')
 const ErrorCatcher = require('../utils/errorCatcher')
-const {
-  body_recognition,
-  bodyAppParser,
-} = require('../context/_task/bodyApplicationParser')
+const { bodyAppParser } = require('../context/_task/bodyApplicationParser')
 const ControllerProcess = require('../controller/Controller')
 
 exports.readCSVFile = async ({ req, res, next }) => {
@@ -43,10 +41,13 @@ exports.readCSVFile = async ({ req, res, next }) => {
     return ResponseBack({ req, rs: message, res, next })
   }
   file.name = `file_${time}${path.parse(file.name).ext}`
-  const filePath = `${process.env.FILE_UPLOAD_PATH}/${file.name}`
+  // const filePath = `${process.env.FILE_UPLOAD_PATH}/${file.name}`
+  const filePath = path.join('./', 'public', 'uploads', `${file.name}`)
+
   file.mv(filePath, async (err) => {
     if (err) return next(new ErrorCatcher(err.message, 500))
     const csv = csvGetter(filePath)
+    fs.unlinkSync(filePath)
     req.body = csv
     const bdy = bodyAppParser(req)
     req.body = bdy
