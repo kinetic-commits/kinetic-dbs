@@ -27,7 +27,7 @@ async function TryAndCatch(Schema, data, message, action = 'create') {
 async function TryAndCatchUpdates(Schema, data, message, ID, parsed) {
   try {
     const verify = await TryAndCatch(Schema, parsed, message, 'findOne')
-    if (!verify) throw new Error('No result found')
+    if (!verify.success) throw new Error('No result found')
     const rs = await Schema.UpdateDocument(verify[ID], data)
     message.data = rs
     message.code = 200

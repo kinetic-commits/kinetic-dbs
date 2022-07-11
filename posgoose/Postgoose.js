@@ -45,6 +45,14 @@ Postgoose.prototype.createConnection = async () => {
     },
   })
 
+  // const pool = new Pool({
+  //   user: 'postgres',
+  //   password: '2022',
+  //   database: 'template1',
+  //   host: 'localhost',
+  //   port: 5432,
+  // })
+
   return pool
 }
 
@@ -78,6 +86,7 @@ Postgoose.prototype.create = async function (record) {
     for (let i = 0; i < this.virtual.length; i++) {
       const v = this.virtual[i]
       const { rs: extract } = GetSchemaData(success, v.table_entries)
+
       const rs = await CreateReusables(extract, v.table, this.pool)
     }
   }
@@ -137,7 +146,7 @@ Postgoose.prototype.UpdateDocument = async function (ID, data) {
   let rs
 
   const main = update_record_parser(data, this.schemaEntries)
-
+  console.log(main)
   if (main) {
     const { update } = KeyValuePairs(main)
     const rs0 = await pool.query(
@@ -159,6 +168,7 @@ Postgoose.prototype.UpdateDocument = async function (ID, data) {
         )
       }
     }
+
     rs = `Document ${rs0.command} with keyID ${ID}`
   }
 

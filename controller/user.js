@@ -1,8 +1,11 @@
+const { imageUploads } = require('../helpers/fileConcern')
 const ErrorCatcher = require('../utils/errorCatcher')
 const asyncHandler = require('../middleware/asyncHandler')
-const CreateOtherUserInfo = require('../model/OtherUserInfo')
 const User = require('../model/UserData')
 const ControllerProcess = require('./Controller')
+const { changePassword } = require('../context/events/calls/SendMail')
+const Mailer = require('../posgoose/Mailer')
+const { isArray } = require('../helpers/essential')
 
 //method    GET/api/v1/user
 //desc      Get all users info
@@ -34,8 +37,23 @@ exports.getUser = asyncHandler(async (req, res, next) => {
 //desc      Get all users info
 //access    Private
 exports.createUser = asyncHandler(async (req, res, next) => {
+  const { search } = req.QUERIES
+  const dg = ['SEND-ME-TOKEN', 'CHANGE-PASSWORD']
+
+  if (dg.includes(search)) return changePassword(req, res, next)
+
   const rs = await ControllerProcess({ req, res, next })
   if (!rs.success) return next(new ErrorCatcher(rs.error, rs.code))
+
+  const body = isArray(req.body) ? req.body[0] : req.body
+  await Mailer.sendLink({
+    req,
+    route: `html-form?search=${body.email}`,
+    to: body.email,
+    program_name: 'Testing program',
+    company_name: 'pabillon_tech',
+  })
+
   CookieConfig(User, 200, res)
 })
 
@@ -85,11 +103,9 @@ exports.logout = asyncHandler(async (req, res, next) => {
 exports.createPassportImage = asyncHandler(async (req, res, next) => {
   const store = await imageUploads({
     req,
-    schema: CreateUserData,
+    schema: User,
     searchParams: 'email',
     field: 'passport_url',
-    table: 'user_data',
-    action: CreateOtherUserInfo,
   })
 
   if (store.error) return next(new ErrorCatcher(store.error, store.code))

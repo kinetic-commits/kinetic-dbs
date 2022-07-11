@@ -1,26 +1,51 @@
-const { NM, ND } = require('../../../helpers/Types');
-const User = require('../../../model/UserData');
-const { agg_returns } = require('../aggregation_tasks/aggregation_tools');
-const { body_recognition } = require('../bodyApplicationParser');
+const { NM, ND } = require('../../../helpers/Types')
+const Form74 = require('../../../model/CustomerData')
+const User = require('../../../model/UserData')
+const { strip } = require('../../essentials/usables')
+const { agg_returns } = require('../aggregation_tasks/aggregation_tools')
 
 const all_selection_queries = async (req, message) => {
-  const { QUERIES: q } = req;
-  const query_parser = body_recognition(q.queries, true);
+  const { QUERIES: q, user } = req
+  const bl = strip(user.franchiseStates)
 
   if (q.role === NM() && q.skip === 'ALLOCATE') {
-    const rs_ = await User.find(query_parser);
-    return agg_returns(rs_, message);
+    const rs_ = await User.find(
+      `where role='${ND()}' and and province in ${bl}`
+    )
+    return agg_returns(rs_, message)
   } else if (q.role === ND() && q.skip === `ALLOCATE:${q.role}`) {
-    const rs_ = await User.find(query_parser);
+    const vp = strip(['MAP:INSTALLER', 'DISCO:INSTALLER', 'INSTALLER'])
+
+    const rs_ = await User.find(`where role in ${vp} and province in ${bl}`)
     const rs =
       rs_.length > 0
         ? rs_.map((d) => {
-            const { franchiseStates, fullName, email, abbrv } = d;
-            return { franchiseStates, fullName, email, abbrv };
+            const { franchiseStates, fullName, email, abbrv } = d
+            return { franchiseStates, fullName, email, abbrv }
           })
-        : rs_;
-    return agg_returns(rs, message);
+        : rs_
+    return agg_returns(rs, message)
+  } else if (q.role === ND() && q.skip === `SHARED`) {
+    const rs_ = await User.find(`where parent_user='${user.email}'`)
+    const rs =
+      rs_.length > 0
+        ? rs_.map((d) => {
+            const { franchiseStates, fullName, email, abbrv } = d
+            return { franchiseStates, fullName, email, abbrv }
+          })
+        : rs_
+    return agg_returns(rs, message)
+  } else if (q.role === 'SITE-VERIFICATION-OFFICER') {
+    const rs_ = await Form74.find({ ...q.queries, customer_id: q.hasId })
+    const rs =
+      rs_.length > 0
+        ? rs_.map((d) => {
+            const { franchiseStates, fullName, email, abbrv } = d
+            return { franchiseStates, fullName, email, abbrv }
+          })
+        : rs_
+    return agg_returns(rs, message)
   }
-};
+}
 
-module.exports = all_selection_queries;
+module.exports = all_selection_queries

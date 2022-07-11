@@ -1,4 +1,5 @@
 const { FIRSTCLASS } = require('../../../helpers/Types')
+const FIELD_ACTIVITIES = require('../../events/calls/re_tpp')
 const MobileActivities = require('../mobile_activities')
 const { agg_returns } = require('./aggregation_tools')
 const CBS_Aggs = require('./cbs_dashboard')
@@ -11,6 +12,7 @@ const Aggregation_Functional_Component = async ({ req, message }) => {
   const stores = ['ITEMS', 'STORE']
   const web = ['DISK-MAP', 'DISK']
   const mobile = ['METER-INSTALLATION', 'VERIFY-PROPERTY', 'FROM-INSTALLER']
+  const field = ['FAULT', 'REPLACEMENT', 'FAULT-ACKNOWLEDGE']
 
   if (stores.includes(q.search)) {
     const v = await getStoreDetails(req)
@@ -22,6 +24,7 @@ const Aggregation_Functional_Component = async ({ req, message }) => {
     const v = await map_dashboard_config({ req })
     return agg_returns(v, message)
   } else if (mobile.includes(q.search)) return MobileActivities(req, message)
+  else if (field.includes(q.search)) return FIELD_ACTIVITIES(req, message)
   else if (q.search === 'VIEW') {
     const v = await exception_anomally(req)
     return agg_returns(v, message)

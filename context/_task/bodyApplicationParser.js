@@ -73,7 +73,7 @@ const app_parser = (data, ign) => {
     fname: data.fname || undefined,
     lname: data.lname || undefined,
     telephone: data.telephone1 || data.telephone,
-    identity_id: data.identityID || data.identity_id,
+    identity_id: data.identityID || data.identity_id || data.identity_number,
     identity_type: data.identityType || data.identity_type,
     gender: data.gender || undefined,
     city: data.city || undefined,
@@ -119,8 +119,11 @@ const app_parser = (data, ign) => {
     role: data.role || undefined,
     country: data.nationality || undefined,
     password: data.password || undefined,
-    states: data.franchiseStates || data.franchisestates,
+    confirm_password: data.confirm_password || undefined,
+    states:
+      data.franchiseStates || data.franchisestates || data.franchise_states,
     franchiseStates: data.franchiseStates || data.states,
+    // email_verified: false,
     sender: data.sender || undefined,
     receiver: data.receiver || undefined,
     stage_status: data.stateStatus || data.stage_status,
@@ -140,6 +143,13 @@ const app_parser = (data, ign) => {
     disco_acknowledgement: data.disco_acknowledgement,
     allocation_status: data.allocation_status,
     user_email: ue || who_email,
+    replacement_reason: data.replacement_reason || data.replacementReason,
+    replace_with_id: data.replace_with_id || data.replaceWithId,
+    needs_replacement: false,
+    replace_acknowledged: false,
+    unique_id: data.unique_id,
+    shared_profile: data.shared_profile,
+    parent_user: data.parent_user,
   }
 }
 
@@ -207,6 +217,18 @@ const _meters = (data, role) => {
     isReceived: role === 'MAP' ? true : data.disco_acknowledgement,
     meterOwner: data.meter_owner,
     phase: data.phase,
+    discoUpload: data.disco_acknowledgement_by,
+    replacementComment: data.replacement_reason,
+    replacementMeterNumber: data.replace_with_id,
+    afterInstallationImage: data.after_installation_image,
+    beforeInstallationImage: data.before_installation_image,
+    discoSnapShot: data.disco_snap_shot,
+    mapSnapShot: data.map_snap_shot,
+    faultyImage: data.faulty_meter_image,
+    replacementImage: data.replacement_image,
+    createAt: data.create_at,
+    needsReplacement: data.needs_replacement,
+    replaceAcknowledged: data.replace_acknowledged,
   }
 }
 

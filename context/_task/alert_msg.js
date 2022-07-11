@@ -9,6 +9,7 @@ const create_alert_msg = async ({
   message,
   comment,
   email,
+  status,
 }) => {
   const id = _transformerID()
   const data = {
@@ -31,6 +32,7 @@ const create_alert_msg = async ({
     uploaded_by: sender,
     comment,
     logger_id: _ide(),
+    stage_status: status,
   })
 }
 

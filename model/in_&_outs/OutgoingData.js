@@ -1,10 +1,10 @@
-const { GetUniques } = require('../../context/essentials/usables');
+const { GetUniques } = require('../../context/essentials/usables')
 
 const OutGoingForMeter = (table, id) => {
-  const un = GetUniques(table.map((b) => b[id]));
+  const un = GetUniques(table.map((b) => b[id]))
   const tabl = un.map((d) => {
-    const user = table.filter((a) => a[id] === d);
-    const data = user[0] || {};
+    const user = table.filter((a) => a[id] === d)
+    const data = user[0] || {}
     const forOne =
       user.length > 0
         ? {
@@ -30,22 +30,31 @@ const OutGoingForMeter = (table, id) => {
             storeID: data.store_id || '',
             allocationStatus: data.allocation_status || '',
             allocatedTo: data.disco_allocation_to || '',
+            discoUpload: data.disco_acknowledgement_by,
+            replacementComment: data.replacement_reason,
+            replacementMeterNumber: data.replace_with_id,
+            afterInstallationImage: data.after_installation_image,
+            beforeInstallationImage: data.before_installation_image,
+            discoSnapShot: data.disco_snap_shot,
+            mapSnapShot: data.map_snap_shot,
+            faultyImage: data.faulty_meter_image,
+            replacementImage: data.replacement_image,
             createAt: data.create_at,
           }
-        : {};
+        : {}
 
-    return forOne;
-  });
-  return tabl;
-};
+    return forOne
+  })
+  return tabl
+}
 
 const OutGoingForCustomer = (table, id) => {
-  if (!table || table.length === 0) return [];
+  if (!table || table.length === 0) return []
 
-  const un = GetUniques(table.map((b) => b[id]));
+  const un = GetUniques(table.map((b) => b[id]))
   const tabl = un.map((d) => {
-    const user = table.filter((a) => a[id] === d);
-    const data = user[0] || {};
+    const user = table.filter((a) => a[id] === d)
+    const data = user[0] || {}
     const forOne =
       user.length > 0
         ? {
@@ -69,7 +78,7 @@ const OutGoingForCustomer = (table, id) => {
             geoCode: data.geo_code || '',
             areaCode: data.area_code || '',
             LAT: data.lat || '',
-            LONG: data.long || '',
+            LONG: data.lng || '',
             propertyImage: data.property_image || '',
             phase: data.phase || '',
             buildingType: data.building_type || '',
@@ -96,19 +105,19 @@ const OutGoingForCustomer = (table, id) => {
             hasAllocation: data.has_allocation || false,
             createAt: data.create_at,
           }
-        : {};
+        : {}
 
-    return forOne;
-  });
-  return tabl;
-};
+    return forOne
+  })
+  return tabl
+}
 
 const OutGoingForUser = (table, id) => {
-  const un = GetUniques(table.map((b) => b[id]));
+  const un = GetUniques(table.map((b) => b[id]))
 
   const tabl = un.map((d) => {
-    const user = table.filter((a) => a[id] === d);
-    const info = user[0] || {};
+    const user = table.filter((a) => a[id] === d)
+    const info = user[0] || {}
     const forOne =
       user.length > 0
         ? {
@@ -117,18 +126,18 @@ const OutGoingForUser = (table, id) => {
             fullName: ` ${info.fname} ${info.lname}`,
             franchiseStates: info.states ? info.states.split(',') : [],
           }
-        : {};
-    return forOne;
-  });
-  return tabl;
-};
+        : {}
+    return forOne
+  })
+  return tabl
+}
 
 const loggerTableOutgoing = (table, id) => {
-  const un = GetUniques(table.map((b) => b[id]));
+  const un = GetUniques(table.map((b) => b[id]))
 
   const tabl = un.map((d) => {
-    const user = table.filter((a) => a[id] === d);
-    const info = user[0] || {};
+    const user = table.filter((a) => a[id] === d)
+    const info = user[0] || {}
     const forOne =
       user.length > 0
         ? {
@@ -144,15 +153,15 @@ const loggerTableOutgoing = (table, id) => {
             createdAt: info.create_at || '',
             comment: info.comment || '',
           }
-        : {};
-    return forOne;
-  });
-  return tabl;
-};
+        : {}
+    return forOne
+  })
+  return tabl
+}
 
 module.exports = {
   OutGoingForMeter,
   OutGoingForCustomer,
   OutGoingForUser,
   loggerTableOutgoing,
-};
+}

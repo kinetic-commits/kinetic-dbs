@@ -18,11 +18,7 @@ const { ndpp, mmpp } = require('../events/calls/u_tpp')
 const Aggregation_Functional_Component = require('./aggregation_tasks/aggregation_func')
 const { create_alert_msg } = require('./alert_msg')
 const { body_recognition } = require('./bodyApplicationParser')
-const {
-  TryAndCatch,
-  TryAndCatchUpdates,
-  CheckMatches,
-} = require('./_task_tools')
+const { TryAndCatch, TryAndCatchUpdates } = require('./_task_tools')
 
 const PUT = async (req) => {
   const message = {
@@ -36,7 +32,13 @@ const PUT = async (req) => {
   const { role, abbrv, name, queries, hasId, search } = QUERIES
   const parse_queries = body_recognition({ ...queries, abbrv, role })
 
-  const aggregations = ['METER-INSTALLATION', 'VERIFY-PROPERTY']
+  const aggregations = [
+    'METER-INSTALLATION',
+    'VERIFY-PROPERTY',
+    'FAULT',
+    'REPLACEMENT',
+    'FAULT-ACKNOWLEDGE',
+  ]
 
   if (aggregations.includes(search))
     return Aggregation_Functional_Component({ req, message })

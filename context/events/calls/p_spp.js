@@ -5,6 +5,7 @@ const { TryAndCatch } = require('../../_task/_task_tools')
 
 exports.mmps = async (req, message) => {
   const { QUERIES: q, body, user } = req
+
   const rs = await TryAndCatch(Metering, body, message)
   if (message.success) {
     await create_alert_msg({
@@ -33,6 +34,8 @@ exports.ndps = async (req, message) => {
       map_allocation_to: q.abbrv,
       meter_number: mt.meter_number,
       disco_acknowledgement: false,
+      carton_id: mt.carton_id,
+      phase: mt.phase,
     })
 
     if (meter) {

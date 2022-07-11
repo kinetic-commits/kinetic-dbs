@@ -25,7 +25,7 @@ const GET = async (req) => {
     code: 500,
   }
 
-  const { QUERIES, baseUrl: url } = req
+  const { QUERIES, baseUrl: url, user } = req
   const { role, abbrv, hasId, name, queries, search, limit } = QUERIES
   const aggregations = [
     'STORE',
@@ -50,12 +50,14 @@ const GET = async (req) => {
       // Run a function that reads and deduct
     } else {
       if (url === CREATE_URL) {
+        const que = { abbrv, role, limit, ...queries }
+
         if (hasId) {
-          const data = { [name || 'email']: hasId, ...parse_queries }
+          const data = { [name || 'email']: hasId, ...que }
           const user = await TryAndCatch(User, data, message, 'findOne')
           return user
         } else {
-          const user = await TryAndCatch(User, parse_queries, message, 'find')
+          const user = await TryAndCatch(User, que, message, 'find')
           return search === 'DECODE' ? { ...user, data: user.data[0] } : user
         }
       } else if (url === NM_URL && role === NM()) return mmpgt(req, message)
@@ -83,13 +85,21 @@ const GET = async (req) => {
           const data = {
             [name || 'logger_id']: hasId,
             ...queries,
-            sender: abbrv,
+            receiver: abbrv,
           }
           const user = await TryAndCatch(
             IssueLoggerSchema,
             data,
             message,
             'findOne'
+          )
+          return user
+        } else {
+          const user = await TryAndCatch(
+            IssueLoggerSchema,
+            { ...queries, receiver: abbrv },
+            message,
+            'find'
           )
           return user
         }

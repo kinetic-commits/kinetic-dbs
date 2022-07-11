@@ -1,50 +1,52 @@
-const { ND } = require('../../../helpers/Types');
-const Metering = require('../../../model/Meter_Data');
-const { myFunc } = require('../../essentials/usables');
-const { meter_data_parser } = require('../bodyApplicationParser');
-const { parse_num } = require('./aggregation_tools');
+const { ND } = require('../../../helpers/Types')
+const Metering = require('../../../model/Meter_Data')
+const { myFunc } = require('../../essentials/usables')
+const { meter_data_parser } = require('../bodyApplicationParser')
+const { parse_num } = require('./aggregation_tools')
 
 async function StoreDetails(req) {
-  const { QUERIES: q, user } = req;
-  const { role, abbrv } = q;
+  const { QUERIES: q, user } = req
+  const { role, abbrv } = q
 
   const who_s_visting =
     role === ND()
       ? {
           map_allocation_to: abbrv,
           allocation_status: 'Allocated',
+          disco_acknowledgement: true,
           disco_allocation_to: 'undefined',
         }
-      : { uploaded_by: abbrv, allocation_status: 'In store' };
+      : { uploaded_by: abbrv, allocation_status: 'In store' }
 
   const st = await Metering.aggregate({
     where: { ...who_s_visting },
     group: { destination_store: '_id' },
     _id: 'destination_store',
     id_name: 'total',
-  });
+  })
 
   const org =
     st[0] == null
       ? st
       : st.map((el) => {
-          return parse_num({ ...el, map: user.abbrv }, 'total');
-        });
-  return org;
+          return parse_num({ ...el, map: user.abbrv }, 'total')
+        })
+  return org
 }
 
 const GetStoreItems = async (req) => {
-  const { QUERIES: q } = req;
-  const { role, abbrv } = q;
+  const { QUERIES: q } = req
+  const { role, abbrv } = q
 
   const who_s_visting =
     role === ND()
       ? {
           map_allocation_to: abbrv,
           allocation_status: 'Allocated',
+          disco_acknowledgement: true,
           disco_allocation_to: 'undefined',
         }
-      : { uploaded_by: abbrv, allocation_status: 'In store' };
+      : { uploaded_by: abbrv, allocation_status: 'In store' }
 
   const st = await Metering.aggregate({
     where: { ...who_s_visting },
@@ -57,14 +59,14 @@ const GetStoreItems = async (req) => {
       store_id: 'store_id',
     },
     _id: 'destination_store',
-  });
+  })
 
   const utie =
     st.length > 0
       ? st.map((el) => {
-          return meter_data_parser(el);
+          return meter_data_parser(el)
         })
-      : [];
+      : []
   const ut = {
     each: utie.length > 0 ? utie.filter((v) => v.pop > 0) : [],
     all: {
@@ -77,14 +79,14 @@ const GetStoreItems = async (req) => {
       md: 0,
       total: myFunc(utie.map((d) => d.pop)),
     },
-  };
-  return ut;
-};
+  }
+  return ut
+}
 
 const getStoreDetails = async (req) => {
-  const { QUERIES: q } = req;
+  const { QUERIES: q } = req
 
-  if (q.search === 'STORE') return StoreDetails(req);
-  else if (q.search === 'ITEMS') return GetStoreItems(req);
-};
-module.exports = getStoreDetails;
+  if (q.search === 'STORE') return StoreDetails(req)
+  else if (q.search === 'ITEMS') return GetStoreItems(req)
+}
+module.exports = getStoreDetails

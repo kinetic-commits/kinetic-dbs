@@ -65,6 +65,7 @@ const POST = async (req) => {
     else if (url === ND_URL && role === ND()) return await ndps(req, message)
     else if (url === CS_URL && (role === CS() || role === ND())) {
       const rs = await TryAndCatch(Form74, body, message)
+
       if (message.success) {
         await create_alert_msg({
           sender: abbrv,
@@ -80,7 +81,12 @@ const POST = async (req) => {
 
       return rs
     } else if (url === ISSUES) {
-      const rs = await TryAndCatch(IssueLoggerSchema, body, message)
+      const bdy = isArray(body)
+        ? body.map((d) => {
+            return { ...d, uploaded_by: abbrv }
+          })
+        : { ...body, uploaded_by: abbrv }
+      const rs = await TryAndCatch(IssueLoggerSchema, bdy, message)
       return rs
     }
 

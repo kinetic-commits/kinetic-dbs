@@ -1,5 +1,8 @@
 const cluster = require('cluster')
-const os_length = require('os').cpus().length
+const { verifyEmail } = require('./context/events/calls/SendMail')
+const Mailer = require('./posgoose/Mailer')
+// const os_length = require('os').cpus().length
+const os_length = 1
 
 if (cluster.isMaster) {
   for (let i = 0; i < os_length; i++) {
@@ -24,6 +27,12 @@ if (cluster.isMaster) {
   const form74 = require('./routes/form74')
   const order = require('./routes/order')
 
+  Mailer.sendMsg({
+    from: 'pabilontech@gmail.com',
+    to: 'peepetrs49@gmail.com',
+    subject: 'Testing nodemailer',
+    body: 'Am saying Hi',
+  })
   // .ENV PATH
   dotenv.config({ path: 'config/.env' })
 
@@ -40,7 +49,13 @@ if (cluster.isMaster) {
   app.use(expressSanitizer())
 
   // File paths for all uploads
-  app.use(express.static(path.join(__dirname, 'public')))
+  app.use('/public', express.static(path.join(__dirname, 'public')))
+
+  app.get('/html-form', async (req, res) => {
+    const htm = path.join(__dirname, 'public', 'html', 'form.html')
+    await verifyEmail(req)
+    res.sendFile(htm)
+  })
 
   //Initialize All Created Routes
   app.use('/api/v1/map', map)
