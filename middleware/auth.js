@@ -28,7 +28,9 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
   try {
     const decode = jwt.verify(token, process.env.QQ)
-    const user_info = await User.findOne(`where email='${decode._id}'`)
+    const user_info = await User.findOne(
+      `where email='${decode._id}' and email_verified=true`
+    )
     if (!user_info)
       return next(
         new ErrorCatcher(

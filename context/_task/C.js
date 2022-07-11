@@ -41,7 +41,7 @@ const POST = async (req) => {
     if (url === CREATE_URL && isExact) {
       const { email, password } = body
       if (baseUrl === LOGIN_URL) {
-        const user = await User.findOne({ email })
+        const user = await User.findOne({ email, email_verified: true })
         const isMatch =
           password && user ? await User.matchPassword(password) : false
         if (!user || !isMatch)
