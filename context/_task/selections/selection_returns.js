@@ -10,13 +10,15 @@ const all_selection_queries = async (req, message) => {
 
   if (q.role === NM() && q.skip === 'ALLOCATE') {
     const rs_ = await User.find(
-      `where role='${ND()}' and and province in ${bl}`
+      `where role='${ND()}' and province in ${bl} and email_verified=true`
     )
     return agg_returns(rs_, message)
   } else if (q.role === ND() && q.skip === `ALLOCATE:${q.role}`) {
     const vp = strip(['MAP:INSTALLER', 'DISCO:INSTALLER', 'INSTALLER'])
 
-    const rs_ = await User.find(`where role in ${vp} and province in ${bl}`)
+    const rs_ = await User.find(
+      `where role in ${vp} and province in ${bl} and email_verified=true`
+    )
     const rs =
       rs_.length > 0
         ? rs_.map((d) => {
@@ -26,7 +28,9 @@ const all_selection_queries = async (req, message) => {
         : rs_
     return agg_returns(rs, message)
   } else if (q.role === ND() && q.skip === `SHARED`) {
-    const rs_ = await User.find(`where parent_user='${user.email}'`)
+    const rs_ = await User.find(
+      `where parent_user='${user.email}' and email_verified=true`
+    )
     const rs =
       rs_.length > 0
         ? rs_.map((d) => {
