@@ -41,11 +41,14 @@ const POST = async (req) => {
     if (url === CREATE_URL && isExact) {
       const { email, password } = body
       if (baseUrl === LOGIN_URL) {
-        const user = await User.findOne({ email, email_verified: true })
+        const user = await User.findOne({ email })
         const isMatch =
           password && user ? await User.matchPassword(password) : false
         if (!user || !isMatch)
           return sendError({ errorMsg: 'Invalid login credential', message })
+
+        if (!user.email_verified)
+          return sendError({ errorMsg: 'Error: Email not verified', message })
 
         message.data = true
         message.success = true

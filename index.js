@@ -27,12 +27,6 @@ if (cluster.isMaster) {
   const form74 = require('./routes/form74')
   const order = require('./routes/order')
 
-  Mailer.sendMsg({
-    from: 'pabilontech@gmail.com',
-    to: 'peepetrs49@gmail.com',
-    subject: 'Testing nodemailer',
-    body: 'Am saying Hi',
-  })
   // .ENV PATH
   dotenv.config({ path: 'config/.env' })
 
