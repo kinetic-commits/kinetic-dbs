@@ -80,7 +80,7 @@ const MobileActivities = async (req, message) => {
       [q.name || 'customer_id']: q.hasId,
       is_certified: false,
     })
-
+    console.log(body)
     if (!dd)
       return agg_returns(
         [],
@@ -96,7 +96,8 @@ const MobileActivities = async (req, message) => {
       area_code: areaCode,
       geo_code: geoCode,
       is_certified,
-      ...res,
+      meter_phase: res.meter_phase,
+      area_type: res.area_type,
     })
 
     message.data = `Document with ID: ${q.hasId} UPDATED successfully...`

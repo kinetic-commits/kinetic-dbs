@@ -15,23 +15,16 @@ User.Schema({
     required: 'User email is required',
   },
   fname: { type: String, empty: true, required: 'User names are required' },
-  lname: { type: String, empty: true, required: 'User names are required' },
+  lname: String,
   telephone: {
     type: String,
     empty: true,
     required: 'User contact info is required',
   },
   passport_url: String,
-  identity_id: {
-    type: String,
-    empty: true,
-    required: 'User Identity means is required',
-  },
-  identity_type: {
-    type: String,
-    empty: true,
-    required: 'User identitiy means is required',
-  },
+  identity_id: String,
+  identity_type: String,
+  password: { type: String, required: 'User password is required' },
 })
 
 User.getChildEntries([
@@ -63,9 +56,16 @@ const hash = async (data_) => {
       const salt = await bcrypt.genSalt(10)
       const password_string = await bcrypt.hash(data.password, salt)
       data.password = password_string
-      data.states = data.franchiseStates
-        ? data.franchiseStates.join()
-        : undefined
+      const town =
+        data.states || data.franchiseStates
+          ? (data.states || data.franchiseStates).join()
+          : undefined
+      const states = town
+        ? town.length > 0
+          ? town
+          : data.province
+        : data.province
+      data.states = states
       rs.push(data)
     }
   }

@@ -1,5 +1,6 @@
 const { NM, FIRSTCLASS, CREATE_URL } = require('../../helpers/Types')
 const { makeObject } = require('../../posgoose/tool')
+const generateString = require('../../utils/GenKeys')
 const { _accountID: _ide } = require('../../utils/idGen')
 const { isArray } = require('../essentials/usables')
 
@@ -22,6 +23,12 @@ const bodyAppParser = (req) => {
         ue,
         store_id: data.store_id || ID,
         role: _ ? data.role : user.role,
+        user_key: _ ? generateString(50) : undefined,
+        admin_key: _
+          ? data.role === 'ADMIN'
+            ? generateString(95)
+            : undefined
+          : undefined,
       })
     )
 
@@ -107,21 +114,28 @@ const app_parser = (data, ign) => {
     occupant_email: data.occupantEmail || data.occupant_email,
     building_structure: data.buildingStructure || data.building_structure,
     meter_installed: data.meterInstalled || data.meter_installed,
-    meter_phase: data.preferredMeterPhase || data.preferred_meter_phase,
+    meter_phase:
+      data.preferredMeterPhase ||
+      data.preferred_meter_phase ||
+      data.meter_phase,
     disco: data.discoName || who || false,
     is_certified: data.isCertified || data.is_certified,
     is_cancelled: data.isCancelled || data.is_cancelled,
     has_priority: data.hasPriority || data.has_priority,
     has_allocation: data.hasAllocation || data.has_allocation,
     allocation_to: allocated_to || data.allocatedTo,
-    province: data.state || undefined,
+    province: data.state || data.province,
     abbrv: who,
     role: data.role || undefined,
-    country: data.nationality || undefined,
+    country: data.nationality || data.country,
     password: data.password || undefined,
+    password1: data.password1 || undefined,
     confirm_password: data.confirm_password || undefined,
     states:
-      data.franchiseStates || data.franchisestates || data.franchise_states,
+      data.franchise_states ||
+      data.franchiseStates ||
+      data.franchisestates ||
+      [],
     franchiseStates: data.franchiseStates || data.states,
     // email_verified: false,
     sender: data.sender || undefined,
@@ -150,6 +164,8 @@ const app_parser = (data, ign) => {
     unique_id: data.unique_id,
     shared_profile: data.shared_profile,
     parent_user: data.parent_user,
+    user_key: data.user_key,
+    admin_key: data.admin_key,
   }
 }
 

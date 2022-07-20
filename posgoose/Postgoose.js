@@ -37,21 +37,23 @@ Postgoose.prototype.Schema = function (item) {
 }
 
 Postgoose.prototype.createConnection = async () => {
+  // const pool = new Pool({
+  //   connectionString: process.env.DATABASE_URL,
+  //   ssl: {
+  //     rejectUnauthorized: false,
+  //     ca: process.env.CA,
+  //   },
+  // })
+
   const pool = new Pool({
-    connectionString: process.env.DATABASE_URL,
-    ssl: {
-      rejectUnauthorized: false,
-      ca: process.env.CA,
-    },
+    user: 'postgres',
+    password: '2022',
+    database: 'template1',
+    host: 'localhost',
+    port: 5432,
   })
 
-  // const pool = new Pool({
-  //   user: 'postgres',
-  //   password: '2022',
-  //   database: 'template1',
-  //   host: 'localhost',
-  //   port: 5432,
-  // })
+  this.pool = pool
 
   return pool
 }
@@ -69,6 +71,7 @@ Postgoose.prototype.create = async function (record) {
   // ADD default values
   const data = await this.createDefaults(record)
   this.data = data
+
   const { errors: err, passed: success } = GetErrorAndPass(data, this.requires)
   // Check and throws error if occured;
   unique_string(err)
@@ -81,12 +84,10 @@ Postgoose.prototype.create = async function (record) {
   )
 
   // Create Child Tables;
-
   if (this.virtual.length > 0 && created) {
     for (let i = 0; i < this.virtual.length; i++) {
       const v = this.virtual[i]
       const { rs: extract } = GetSchemaData(success, v.table_entries)
-
       const rs = await CreateReusables(extract, v.table, this.pool)
     }
   }
@@ -169,7 +170,7 @@ Postgoose.prototype.UpdateDocument = async function (ID, data) {
       }
     }
 
-    rs = `Document ${rs0.command} with keyID ${ID}`
+    rs = rs0 && `Document ${rs0.command} with keyID ${ID}`
   }
 
   return rs
@@ -199,6 +200,28 @@ Postgoose.prototype.getChildEntries = function (table) {
       this.global_now.push(defaultValues)
     }
   })
+}
+
+Postgoose.prototype.clearDB = async function () {
+  const pool = this.pool || (await this.createConnection())
+  const dbs = process.env.REGISTERED_DB.split(',')
+  let resp = []
+
+  if (dbs.length > 1) {
+    for (var i = 0; i < dbs.length; i++) {
+      const { rows } = await pool.query(`SELECT EXISTS(
+        SELECT FROM information_schema.tables
+        WHERE table_schema = 'public'
+        AND table_name = '${dbs[i]}'
+    )`)
+
+      if (rows[0].exists) {
+        const rs = await pool.query(`drop table ${dbs[i]} cascade`)
+        resp.push(rs.command)
+      }
+    }
+  }
+  return resp
 }
 
 Postgoose.prototype.isExist = async function () {

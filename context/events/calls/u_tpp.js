@@ -146,7 +146,9 @@ exports.ndpp = async (req, message) => {
     if (message.success) {
       await create_alert_msg({
         sender: q.abbrv,
-        receiver: isArray(body) ? body[0].allocation_to : body.allocation_to,
+        receiver: isArray(body)
+          ? body[0].disco_allocation_to
+          : body.disco_allocation_to,
         logger_type: 'Metering Allocation',
         refID: isArray(info) ? info[0].store_id : info.store_id,
         message: resp,

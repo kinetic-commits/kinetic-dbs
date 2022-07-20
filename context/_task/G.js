@@ -7,6 +7,7 @@ const {
   ND,
   CS,
   ISSUES,
+  FIRSTCLASS,
 } = require('../../helpers/Types')
 const Form74 = require('../../model/CustomerData')
 const IssueLoggerSchema = require('../../model/IssueLogger')
@@ -50,7 +51,10 @@ const GET = async (req) => {
       // Run a function that reads and deduct
     } else {
       if (url === CREATE_URL) {
-        const que = { abbrv, role, limit, ...queries }
+        const que =
+          role === 'ADMIN'
+            ? { ...(search === 'DECODE' ? { abbrv, role } : '') }
+            : { abbrv, role, limit, ...queries }
 
         if (hasId) {
           const data = { [name || 'email']: hasId, ...que }
@@ -61,7 +65,8 @@ const GET = async (req) => {
           return search === 'DECODE' ? { ...user, data: user.data[0] } : user
         }
       } else if (url === NM_URL && role === NM()) return mmpgt(req, message)
-      else if (url === ND_URL && role === ND()) return ndpgt(req, message)
+      else if (url === ND_URL && (role === ND() || FIRSTCLASS().includes(role)))
+        return ndpgt(req, message)
       else if (url === CS_URL && (role === CS() || role === ND())) {
         if (hasId) {
           const data = {
@@ -95,12 +100,11 @@ const GET = async (req) => {
           )
           return user
         } else {
-          const user = await TryAndCatch(
-            IssueLoggerSchema,
-            { ...queries, receiver: abbrv },
-            message,
-            'find'
-          )
+          const dd = {
+            ...queries,
+            ...(search === 'strict' && { receiver: abbrv }),
+          }
+          const user = await TryAndCatch(IssueLoggerSchema, dd, message, 'find')
           return user
         }
       }

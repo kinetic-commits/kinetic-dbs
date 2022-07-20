@@ -11,17 +11,22 @@ const CreateOtherUserInfo = {
     type: Boolean,
     default: false,
   },
+  right_to_share_profile: {
+    type: Boolean,
+    default: false,
+  },
   parent_user: String,
+  parent_user_role: String,
+  is_disabled: {
+    type: Boolean,
+    default: false,
+  },
+  user_key: String,
   email_verified: {
     type: Boolean,
     default: false,
   },
   last_login_info: 'Date',
-  create_at: {
-    type: 'Date',
-    default: dateAndTime().currentDate_time,
-  },
-  password: { type: String, required: 'User password is required' },
 }
 
 module.exports = CreateOtherUserInfo

@@ -1,4 +1,5 @@
 const Metering = require('../../../model/Meter_Data')
+const { makeObject } = require('../../../posgoose/tool')
 const { body_recognition } = require('../../_task/bodyApplicationParser')
 const { TryAndCatch } = require('../../_task/_task_tools')
 
@@ -39,7 +40,9 @@ exports.mmpgt = async (req, message) => {
 }
 
 exports.ndpgt = async (req, message) => {
-  const { hasId, name, abbrv, queries, search } = req.QUERIES
+  const { hasId, name, role, abbrv, queries, search } = req.QUERIES
+  console.log(role)
+  if (role === 'CBN') return fromBS(req, message)
 
   if (search === 'FAULT') {
     const data = {
@@ -53,25 +56,40 @@ exports.ndpgt = async (req, message) => {
     return user
   } else {
     if (hasId) {
-      const data = body_recognition({
+      const data = {
         [name || 'meter_number']: hasId,
         map_allocation_to: abbrv,
         disco_acknowledgement_by: abbrv,
-      })
+      }
       const user = await TryAndCatch(Metering, data, message, 'findOne')
       return user
     } else {
       const user = await TryAndCatch(
         Metering,
-        body_recognition({
+        {
           map_allocation_to: abbrv,
           disco_acknowledgement_by: abbrv,
           ...queries,
-        }),
+        },
         message,
         'find'
       )
       return user
     }
+  }
+}
+
+async function fromBS(req, message) {
+  const { hasId, name, abbrv, queries } = req.QUERIES
+  if (hasId) {
+    const data = {
+      [name || 'meter_number']: hasId,
+    }
+    const user = await TryAndCatch(Metering, data, message, 'findOne')
+    return user
+  } else {
+    const que = makeObject([queries])
+    const user = await TryAndCatch(Metering, que, message, 'find')
+    return user
   }
 }

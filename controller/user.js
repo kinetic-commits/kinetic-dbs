@@ -46,13 +46,14 @@ exports.createUser = asyncHandler(async (req, res, next) => {
   if (!rs.success) return next(new ErrorCatcher(rs.error, rs.code))
 
   const body = isArray(req.body) ? req.body[0] : req.body
-  await Mailer.sendLink({
-    req,
-    route: `html-form?search=${body.email}`,
-    to: body.email,
-    program_name: 'Testing program',
-    company_name: 'pabillon_tech',
-  })
+  // await Mailer.sendLink({
+  //   req,
+  //   route: `html-form?search=${body.email}`,
+  //   to: body.email,
+  //   body: body.password1,
+  //   program_name: 'Testing program',
+  //   company_name: 'pabillon_tech',
+  // })
 
   CookieConfig(User, 200, res)
 })
@@ -113,6 +114,15 @@ exports.createPassportImage = asyncHandler(async (req, res, next) => {
   res.status(200).json({
     success: true,
     data: store,
+  })
+})
+
+exports.AM = asyncHandler(async (req, res, next) => {
+  const rs = await User.clearDB()
+
+  res.status(200).json({
+    success: true,
+    data: {},
   })
 })
 

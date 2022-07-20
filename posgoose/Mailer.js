@@ -54,6 +54,10 @@ Mailer.prototype.sendLink = async function ({
     to,
     subject,
     html: `
+    <h2 style="font-weight: bold">Your registration was successful</h2>
+    <p>Here are your login details:</p>
+    <p>Username: ${to}</p>
+    <p>Password: ${body}</p>
     <p style="font-weight: bold">Click the link below to verify your email.</p>
     <p style="color: red">You are receiving this mail because you are part of the ${
       program_name || '<Program name>'

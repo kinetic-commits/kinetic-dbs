@@ -132,11 +132,10 @@ const OutGoingForUser = (table, id) => {
   return tabl
 }
 
-const loggerTableOutgoing = (table, id) => {
-  const un = GetUniques(table.map((b) => b[id]))
-
+const loggerTableOutgoing = (table) => {
+  const un = GetUniques(table.map((b) => b.logger_id))
   const tabl = un.map((d) => {
-    const user = table.filter((a) => a[id] === d)
+    const user = table.filter((a) => a.logger_id === d)
     const info = user[0] || {}
     const forOne =
       user.length > 0

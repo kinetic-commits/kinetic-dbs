@@ -12,6 +12,7 @@ const {
 const Form74 = require('../../model/CustomerData')
 const IssueLoggerSchema = require('../../model/IssueLogger')
 const User = require('../../model/UserData')
+const { dateAndTime } = require('../../utils/dateTime')
 const { isArray } = require('../essentials/usables')
 const { mmps, ndps } = require('../events/calls/p_spp')
 const { create_alert_msg } = require('./alert_msg')
@@ -44,11 +45,16 @@ const POST = async (req) => {
         const user = await User.findOne({ email })
         const isMatch =
           password && user ? await User.matchPassword(password) : false
+
         if (!user || !isMatch)
           return sendError({ errorMsg: 'Invalid login credential', message })
 
-        if (!user.email_verified)
-          return sendError({ errorMsg: 'Error: Email not verified', message })
+        await User.UpdateDocument(email, {
+          last_login_info: dateAndTime().currentDate_time,
+        })
+
+        // if (!user.email_verified)
+        //   return sendError({ errorMsg: 'Error: Email not verified', message })
 
         message.data = true
         message.success = true

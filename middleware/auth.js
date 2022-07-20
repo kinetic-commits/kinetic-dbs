@@ -28,9 +28,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
 
   try {
     const decode = jwt.verify(token, process.env.QQ)
-    const user_info = await User.findOne(
-      `where email='${decode._id}' and email_verified=true`
-    )
+    const user_info = await User.findOne(`where email='${decode._id}'`)
     if (!user_info)
       return next(
         new ErrorCatcher(
@@ -38,6 +36,9 @@ exports.protect = asyncHandler(async (req, res, next) => {
           401
         )
       )
+
+    if (user_info.email_verified)
+      return next(new ErrorCatcher('Email not verified! Access denied', 401))
 
     req.user = user_info
     callEvent.emit(magic_string.QUERIES, req)

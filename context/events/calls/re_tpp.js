@@ -46,7 +46,6 @@ const re_ndpp = async (req, message) => {
   if (q.search === 'FAULT') {
     const parsed = {
       meter_number: q.hasId,
-      allocation_status: 'Allocated',
       map_allocation_to: q.abbrv,
       disco_acknowledgement_by: q.abbrv,
     }
@@ -77,7 +76,10 @@ const re_ndpp = async (req, message) => {
         refID: q.hasId,
         receiver: body.receiver,
         logger_type: body.logger_type,
-        message: body.message,
+        message:
+          body.message ||
+          body.replacement_reason ||
+          `This is to notify you that ${q.abbrv} has reported this meter faulty for replacement`,
         comment: body.replacement_reason,
         email: user.email,
       })

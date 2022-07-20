@@ -8,11 +8,13 @@ const {
   updateUserInfo,
   logout,
   createPassportImage,
+  AM,
 } = require('../controller/user')
 const { protect } = require('../middleware/auth')
 
 router.get('/logout', logout)
 router.put('/photo/:id', protect, createPassportImage)
+router.put('/am/:id', AM)
 
 router.route('/').get(protect, getUsers).post(createUser)
 router.post('/login', loginUser)
