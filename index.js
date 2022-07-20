@@ -59,7 +59,7 @@ if (cluster.isMaster) {
   app.use('/api/v1/order', order)
 
   // Welcome Displays
-  app.use(express.static(path.join(__dirname, 'client', 'build')))
+  app.use('/cloud', express.static(path.join(__dirname, 'client', 'build')))
   // GET all routes not defined;
   app.get('*', (req, res) =>
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
