@@ -42,7 +42,6 @@ if (cluster.isMaster) {
   app.use(expressSanitizer())
 
   // File paths for all uploads
-  app.use('/', express.static(path.join(__dirname, 'static')))
   app.use('/public', express.static(path.join(__dirname, 'public')))
 
   app.get('/html-form', async (req, res) => {
@@ -59,7 +58,7 @@ if (cluster.isMaster) {
   app.use('/api/v1/order', order)
 
   // Welcome Displays
-  app.use('/cloud', express.static(path.join(__dirname, 'client', 'build')))
+  app.use(express.static(path.join(__dirname, 'client', 'build')))
   // GET all routes not defined;
   app.get('*', (req, res) =>
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
