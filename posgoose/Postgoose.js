@@ -37,21 +37,21 @@ Postgoose.prototype.Schema = function (item) {
 }
 
 Postgoose.prototype.createConnection = async () => {
-  // const pool = new Pool({
-  //   connectionString: process.env.DATABASE_URL,
-  //   ssl: {
-  //     rejectUnauthorized: false,
-  //     ca: process.env.CA,
-  //   },
-  // })
-
   const pool = new Pool({
-    user: 'postgres',
-    password: '2022',
-    database: 'template1',
-    host: 'localhost',
-    port: 5432,
+    connectionString: process.env.DATABASE_URL,
+    ssl: {
+      rejectUnauthorized: false,
+      ca: process.env.CA,
+    },
   })
+
+  // const pool = new Pool({
+  //   user: 'postgres',
+  //   password: '2022',
+  //   database: 'template1',
+  //   host: 'localhost',
+  //   port: 5432,
+  // })
 
   this.pool = pool
 
