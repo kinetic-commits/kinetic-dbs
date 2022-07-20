@@ -1,6 +1,5 @@
 const cluster = require('cluster')
 const { verifyEmail } = require('./context/events/calls/SendMail')
-const Mailer = require('./posgoose/Mailer')
 // const os_length = require('os').cpus().length
 const os_length = 1
 
@@ -62,7 +61,7 @@ if (cluster.isMaster) {
   // Welcome Displays
   app.use(express.static(path.join(__dirname, 'client', 'build')))
   // GET all routes not defined;
-  app.get('/cloud', (req, res) =>
+  app.get('*', (req, res) =>
     res.sendFile(path.resolve(__dirname, 'client', 'build', 'index.html'))
   )
 

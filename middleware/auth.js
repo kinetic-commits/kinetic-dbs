@@ -37,7 +37,7 @@ exports.protect = asyncHandler(async (req, res, next) => {
         )
       )
 
-    if (user_info.email_verified)
+    if (!user_info.email_verified)
       return next(new ErrorCatcher('Email not verified! Access denied', 401))
 
     req.user = user_info

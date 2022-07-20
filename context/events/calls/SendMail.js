@@ -37,8 +37,8 @@ exports.changePassword = async (req, res, next) => {
 
 exports.verifyEmail = async (req) => {
   const { search } = req.QUERIES
-  const vf = await User.findOne({ email: search })
+  const vf = await User.findOne({ user_key: search })
   if (vf) {
-    await User.UpdateDocument(search, { email_verified: true })
+    await User.UpdateDocument(vf.email, { email_verified: true })
   } else console.log(vf)
 }
