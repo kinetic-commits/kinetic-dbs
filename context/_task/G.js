@@ -27,6 +27,7 @@ const GET = async (req) => {
   }
 
   const { QUERIES, baseUrl: url, user } = req
+  const usr = user || {}
   const { role, abbrv, hasId, name, queries, search, limit } = QUERIES
   const aggregations = [
     'STORE',
@@ -71,7 +72,7 @@ const GET = async (req) => {
 
         if (hasId) {
           const data = {
-            [name || 'email']: search === 'DECODE' ? user.email : hasId,
+            [name || 'email']: search === 'DECODE' ? usr.email : hasId,
             ...que,
           }
           const files = [ND(), NM(), ...FIRSTCLASS()].includes(role)
