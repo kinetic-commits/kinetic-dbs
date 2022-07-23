@@ -1,7 +1,10 @@
 const { ND } = require('../../../helpers/Types')
 const Metering = require('../../../model/Meter_Data')
 const { myFunc } = require('../../essentials/usables')
-const { meter_data_parser } = require('../bodyApplicationParser')
+const {
+  meter_data_parser,
+  body_recognition,
+} = require('../bodyApplicationParser')
 const { parse_num } = require('./aggregation_tools')
 
 async function StoreDetails(req) {
@@ -37,7 +40,7 @@ async function StoreDetails(req) {
 const GetStoreItems = async (req) => {
   const { QUERIES: q } = req
   const { role, abbrv } = q
-
+  const { destination_store } = body_recognition(q.queries)
   const who_s_visting =
     role === ND()
       ? {
@@ -45,12 +48,12 @@ const GetStoreItems = async (req) => {
           allocation_status: 'Allocated',
           disco_acknowledgement: true,
           disco_allocation_to: 'undefined',
-          ...q.queries,
+          destination_store,
         }
       : {
           uploaded_by: abbrv,
           allocation_status: 'In store',
-          ...q.queries,
+          destination_store,
         }
 
   const st = await Metering.aggregate({
