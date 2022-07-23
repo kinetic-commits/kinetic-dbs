@@ -50,6 +50,12 @@ if (cluster.isMaster) {
     res.sendFile(htm)
   })
 
+  app.get('/policy', async (req, res) => {
+    const htm = path.join(__dirname, 'public', 'policy.pdf')
+    await verifyEmail(req)
+    res.sendFile(htm)
+  })
+
   //Initialize All Created Routes
   app.use('/api/v1/map', map)
   app.use('/api/v1/disco', disco)
