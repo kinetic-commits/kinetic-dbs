@@ -45,12 +45,12 @@ const GetStoreItems = async (req) => {
           allocation_status: 'Allocated',
           disco_acknowledgement: true,
           disco_allocation_to: 'undefined',
-          destination_store: q.hasId,
+          ...q.queries,
         }
       : {
           uploaded_by: abbrv,
           allocation_status: 'In store',
-          destination_store: q.hasId,
+          ...q.queries,
         }
 
   const st = await Metering.aggregate({
