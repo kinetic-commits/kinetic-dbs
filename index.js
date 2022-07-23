@@ -50,7 +50,7 @@ if (cluster.isMaster) {
     res.sendFile(htm)
   })
 
-  app.get('/policy', async (req, res) => {
+  app.get('/public/html/policy', async (req, res) => {
     const htm = path.join(__dirname, 'public', 'policy.pdf')
     await verifyEmail(req)
     res.sendFile(htm)
