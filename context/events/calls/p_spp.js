@@ -1,20 +1,21 @@
 const Metering = require('../../../model/Meter_Data')
+const { dateAndTime } = require('../../../utils/dateTime')
 const { isArray } = require('../../essentials/usables')
 const { create_alert_msg } = require('../../_task/alert_msg')
 const { TryAndCatch } = require('../../_task/_task_tools')
 
 exports.mmps = async (req, message) => {
-  const { QUERIES: q, body, user } = req
+  const { QUERIES: q, main, user } = req
 
-  const rs = await TryAndCatch(Metering, body, message)
+  const rs = await TryAndCatch(Metering, main, message)
   if (message.success) {
     await create_alert_msg({
       sender: q.abbrv,
       receiver: q.abbrv,
       logger_type: 'Meter Uploaded to Virtual Store',
-      refID: isArray(body) ? body[0].store_id : body.store_id,
+      refID: isArray(main) ? main[0].store_id : main.store_id,
       message: `Metering upload of ${
-        isArray(body) ? body.length : 1
+        isArray(main) ? main.length : 1
       } was succesfully`,
       email: user.email,
     })
@@ -23,10 +24,10 @@ exports.mmps = async (req, message) => {
 }
 
 exports.ndps = async (req, message) => {
-  const { QUERIES: q, body, user } = req
+  const { QUERIES: q, main, user } = req
 
   let response = []
-  const info = isArray(body) ? body : [body]
+  const info = isArray(main) ? main : [main]
 
   for (let i = 0; i < info.length; i++) {
     const mt = info[i]
@@ -42,6 +43,7 @@ exports.ndps = async (req, message) => {
       await Metering.UpdateDocument(meter.meterNumber, {
         disco_acknowledgement: true,
         disco_acknowledgement_by: q.abbrv,
+        acknowledged_date: dateAndTime().currentDate,
       })
       response.push(`${mt.meter_number} moved to store successfully...`)
     }
@@ -62,7 +64,7 @@ exports.ndps = async (req, message) => {
       receiver: q.abbrv,
       logger_type: 'Meter Uploaded to Virtual Store',
       message: `Metering upload of ${
-        isArray(body) ? body.length : 1
+        isArray(main) ? main.length : 1
       } was succesfully`,
       email: user.email,
     })

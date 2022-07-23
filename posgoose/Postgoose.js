@@ -115,6 +115,7 @@ Postgoose.prototype.find = async function (where, select, strict) {
   const pool = this.pool
   let tabl = this.join()
   const where_at = where ? this.mapThrough(where) : ''
+  if (!where_at) throw new Error(`Expected valid string but got: ${where_at}`)
   const rs = await pool.query(
     `select ${select ? select : '*'} from ${this.schemaName} ${tabl} ${
       where || strict ? where_at : ''
@@ -294,8 +295,8 @@ Postgoose.prototype.method = function (method) {
 }
 
 Postgoose.prototype.mapThrough = function (obj, skip) {
-  if (!obj || Object.keys(obj).length < 1) return ''
-  else if (typeof obj === 'string') return obj
+  if (!obj || Object.keys(obj).length < 1) return undefined
+  else if (typeof obj === 'string') return obj.length > 0 && obj
   else {
     const ofset = obj.offset ? `offset ${obj.offset}` : `offset ${0}`
     const limit = obj.limit ? `limit ${obj.limit}` : `limit ${1000}`

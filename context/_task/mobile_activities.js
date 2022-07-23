@@ -1,12 +1,13 @@
 const Form74 = require('../../model/CustomerData')
 const Metering = require('../../model/Meter_Data')
+const { dateAndTime } = require('../../utils/dateTime')
 const { coordsID } = require('../../utils/idGen')
 const { agg_returns } = require('./aggregation_tasks/aggregation_tools')
 const { TryAndCatch } = require('./_task_tools')
 
 const MobileActivities = async (req, message) => {
-  const { body, user, QUERIES: q } = req
-  const { lat, lng } = body
+  const { main, user, QUERIES: q } = req
+  const { lat, lng } = main
 
   if (q.search === 'METER-INSTALLATION') {
     const dg = ['INSTALLER', 'DISCO:INSTALLER', 'MAP:INSTALLER']
@@ -47,10 +48,12 @@ const MobileActivities = async (req, message) => {
             allocation_status: 'Installed',
             installation_by: na,
             property_ref_id: vy.customer_id,
+            installation_date: dateAndTime().currentDate,
           })
           // if(rs_.startsWith('Document UPDATE'))
           await Form74.UpdateDocument(vy.customer_id, {
             meter_installed: true,
+            installation_date: dateAndTime().currentDate,
           })
 
           message.data = `Document with ID: ${dd.meterNumber} UPDATED successfully...`
@@ -70,7 +73,7 @@ const MobileActivities = async (req, message) => {
     const dg = ['SITE-VERIFICATION-OFFICER']
 
     if (!dg.includes(q.role)) return message
-    const { lat, lng, location_coords, is_certified, ...res } = body || {}
+    const { lat, lng, location_coords, is_certified, ...res } = main || {}
 
     if (!lat || !lng || !location_coords || !is_certified)
       return agg_returns([], message, `Geo-location config is null`)
@@ -80,7 +83,7 @@ const MobileActivities = async (req, message) => {
       [q.name || 'customer_id']: q.hasId,
       is_certified: false,
     })
-    console.log(body)
+    // console.log(main)
     if (!dd)
       return agg_returns(
         [],

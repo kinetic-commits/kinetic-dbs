@@ -1,12 +1,12 @@
-const postgoose = require('../posgoose/Postgoose');
-const CreateForm74Address = require('./CustomerAddress');
-const CreatePropertyDesc = require('./CustomerPropertyDesc');
+const postgoose = require('../posgoose/Postgoose')
+const CreateForm74Address = require('./CustomerAddress')
+const CreatePropertyDesc = require('./CustomerPropertyDesc')
 const {
   OutGoingForUser,
   OutGoingForCustomer,
-} = require('./in_&_outs/OutgoingData');
-const CreateCustomerInfo = require('./OtherCustomerInfo');
-const Form74 = new postgoose();
+} = require('./in_&_outs/OutgoingData')
+const CreateCustomerInfo = require('./OtherCustomerInfo')
+const Form74 = new postgoose()
 
 Form74.Schema({
   user_email: {
@@ -43,9 +43,8 @@ Form74.Schema({
     empty: true,
     required: 'Customer identitiy means is required',
   },
-  gender: String,
   email: String,
-});
+})
 
 Form74.getChildEntries([
   {
@@ -66,9 +65,9 @@ Form74.getChildEntries([
     table: 'other_customer_info',
     item: CreateCustomerInfo,
   },
-]);
+])
 
-Form74.outGoings(undefined, OutGoingForCustomer);
-Form74.model('customer_data');
+Form74.outGoings(undefined, OutGoingForCustomer)
+Form74.model('customer_data')
 
-module.exports = Form74;
+module.exports = Form74

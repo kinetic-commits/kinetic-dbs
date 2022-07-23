@@ -61,6 +61,8 @@ const OutGoingForCustomer = (table, id) => {
             customer_id: data._id,
             fname: data.fname || '',
             lname: data.lname || '',
+            fullName: ads_getters(data).fullName,
+            buildingAddress: ads_getters(data).buildingAddress,
             telephone: data.telephone || '',
             identityID: data.identity_id || '',
             identityType: data.identity_type || '',
@@ -123,7 +125,8 @@ const OutGoingForUser = (table, id) => {
         ? {
             ...info,
             createAt: info.create_at,
-            fullName: ` ${info.fname} ${info.lname}`,
+            fullName: ads_getters(info).fullName,
+            buildingAddress: ads_getters(info).buildingAddress,
             franchiseStates: info.states ? info.states.split(',') : [],
           }
         : {}
@@ -156,6 +159,50 @@ const loggerTableOutgoing = (table) => {
     return forOne
   })
   return tabl
+}
+
+function ads_getters(obj = {}) {
+  const {
+    street_number,
+    street_name,
+    city,
+    area_name,
+    state,
+    province,
+    nationality,
+    fname,
+    lname,
+  } = obj
+  const ste = state || province
+  const stner =
+      street_name && street_name !== 'undefined' ? street_name : undefined,
+    stn =
+      street_name && street_number !== 'undefined' ? street_number : undefined,
+    c = city && city !== 'undefined' ? city : undefined,
+    ar = area_name && area_name !== 'undefined' ? area_name : undefined,
+    te = ste && ste !== 'undefined' ? ste : undefined,
+    na = nationality && nationality !== 'undefined' ? nationality : 'Nigeria',
+    f = fname && fname !== 'undefined' ? fname : undefined,
+    ln = lname && lname !== 'undefined' ? lname : undefined
+  let address, fullName;
+  if (stner && stn && ar && c && te && na) {
+    address = stn + ' ' + stner + ', ' + ar + ' ' + c + ', ' + te + ', ' + na
+  } else if (stner && stn && c && te && na) {
+    address = stn + ' ' + stner + ', ' + c + ', ' + te + ', ' + na
+  } else if (stner && stn && te && na) {
+    address = stn + ' ' + stner + ', ' + te + ', ' + na
+  } else if (stner && te && na) {
+    address = stner + ', ' + te + ', ' + na
+  }else if(te && na){
+    address = te + ', ' + na
+  }else address = na;
+
+  if(f && ln) fullName = f + ' ' + ln
+  else if(f && !ln) fullName = f;
+  else if(!f && ln) fullName = ln;
+  else fullName = f;
+
+  return { buildingAddress: address, fullName }
 }
 
 module.exports = {

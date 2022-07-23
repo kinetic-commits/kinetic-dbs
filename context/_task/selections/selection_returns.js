@@ -9,9 +9,8 @@ const all_selection_queries = async (req, message) => {
   const bl = strip(user.franchiseStates)
 
   if (q.role === NM() && q.skip === 'ALLOCATE') {
-    const rs_ = await User.find(
-      `where role='${ND()}' and province in ${bl} and email_verified=true`
-    )
+    const params = `where role='${ND()}' and province in ${bl} and email_verified=true`
+    const rs_ = await User.find(params)
     return agg_returns(rs_, message)
   } else if (q.role === ND() && q.skip === `ALLOCATE:${q.role}`) {
     const vp = strip(['MAP:INSTALLER', 'DISCO:INSTALLER', 'INSTALLER'])

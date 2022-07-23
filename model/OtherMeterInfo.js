@@ -20,6 +20,9 @@ const createOtherMeterInfo = {
   map_snap_shot: String,
   disco_snap_shot: String,
   replacement_meter_image: String,
+  allocation_date: 'Date',
+  acknowledged_date: 'Date',
+  installation_date: 'Date',
 }
 
 module.exports = createOtherMeterInfo

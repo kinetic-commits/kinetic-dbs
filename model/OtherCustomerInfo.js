@@ -1,4 +1,4 @@
-const { dateAndTime } = require('../utils/dateTime');
+const { dateAndTime } = require('../utils/dateTime')
 
 const CreateCustomerInfo = {
   user_email: {
@@ -20,6 +20,8 @@ const CreateCustomerInfo = {
     type: String,
     required: 'Document owner email is required',
   },
+  allocation_date: 'Date',
+  installation_date: 'Date',
   is_certified: {
     type: Boolean,
     default: false,
@@ -40,6 +42,6 @@ const CreateCustomerInfo = {
     type: 'Date',
     default: dateAndTime().currentDate_time,
   },
-};
+}
 
-module.exports = CreateCustomerInfo;
+module.exports = CreateCustomerInfo

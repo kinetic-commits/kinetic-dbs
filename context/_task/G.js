@@ -53,15 +53,48 @@ const GET = async (req) => {
       if (url === CREATE_URL) {
         const que =
           role === 'ADMIN'
-            ? { ...(search === 'DECODE' ? { abbrv, role } : '') }
-            : { abbrv, role, limit, ...queries }
+            ? { ...(search === 'DECODE' ? { abbrv, role } : { ...queries }) }
+            : {
+                ...([ND(), NM()].includes(role) && search === 'OWNED'
+                  ? { parent_user: user.email }
+                  : { abbrv, role }),
+                limit,
+                ...queries,
+              }
+
+        const qy =
+          role === 'ADMIN'
+            ? Object.keys(que).length === 0
+              ? `where email <> 'undefined'`
+              : que
+            : que
 
         if (hasId) {
-          const data = { [name || 'email']: hasId, ...que }
+          const data = {
+            [name || 'email']: search === 'DECODE' ? user.email : hasId,
+            ...que,
+          }
+          const files = [ND(), NM(), ...FIRSTCLASS()].includes(role)
+            ? await User.find(
+                role === NM() ? { abbrv } : `where role in ('MAP', 'DISCO')`
+              )
+            : []
+
+          const fl =
+            files.length > 0
+              ? files.filter((d) => d.role === 'MAP').map((d) => d && d.abbrv)
+              : []
+          const ds =
+            files.length > 0
+              ? files.filter((d) => d.role === 'DISCO').map((d) => d && d.abbrv)
+              : []
+
           const user = await TryAndCatch(User, data, message, 'findOne')
-          return user
+          const daa = { ...user, data: { ...user.data, map: fl, disco: ds } }
+
+          return daa
         } else {
-          const user = await TryAndCatch(User, que, message, 'find')
+          const user = await TryAndCatch(User, qy, message, 'find')
           return search === 'DECODE' ? { ...user, data: user.data[0] } : user
         }
       } else if (url === NM_URL && role === NM()) return mmpgt(req, message)
@@ -100,10 +133,10 @@ const GET = async (req) => {
           )
           return user
         } else {
-          const dd = {
-            ...queries,
-            ...(search === 'strict' && { receiver: abbrv }),
-          }
+          const dd =
+            search === 'RECEIVER'
+              ? `where sender <>'${abbrv}' and receiver='${abbrv}'`
+              : queries
           const user = await TryAndCatch(IssueLoggerSchema, dd, message, 'find')
           return user
         }

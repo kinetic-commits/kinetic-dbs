@@ -31,16 +31,16 @@ const POST = async (req) => {
     method,
     QUERIES,
     baseUrl: url,
-    body,
+    main,
     user,
   } = req
   const isExact = method === 'POST' && !QUERIES.search
   const { role, abbrv } = QUERIES
-  const parse_body = isArray(body) ? body.length : 1
+  const parse_main = isArray(main) ? main.length : 1
 
-  if (parse_body <= 200000) {
+  if (parse_main <= 200000) {
     if (url === CREATE_URL && isExact) {
-      const { email, password } = body
+      const { email, password } = main
       if (baseUrl === LOGIN_URL) {
         const user = await User.findOne({ email })
         const isMatch =
@@ -53,8 +53,12 @@ const POST = async (req) => {
           last_login_info: dateAndTime().currentDate_time,
         })
 
-        // if (!user.email_verified)
-        //   return sendError({ errorMsg: 'Error: Email not verified', message })
+        if (user.is_disabled)
+          return sendError({
+            errorMsg:
+              'It seems you will need the ADMIN to help you access your profile',
+            message,
+          })
 
         message.data = true
         message.success = true
@@ -67,22 +71,22 @@ const POST = async (req) => {
             message,
           })
 
-        const rs = await TryAndCatch(User, body, message)
+        const rs = await TryAndCatch(User, main, message)
         return rs
       }
     } else if (url === NM_URL && role === NM()) return await mmps(req, message)
     else if (url === ND_URL && role === ND()) return await ndps(req, message)
     else if (url === CS_URL && (role === CS() || role === ND())) {
-      const rs = await TryAndCatch(Form74, body, message)
+      const rs = await TryAndCatch(Form74, main, message)
 
       if (message.success) {
         await create_alert_msg({
           sender: abbrv,
           receiver: abbrv,
           logger_type: 'Customer Record Upload',
-          refID: isArray(body) ? body[0].store_id : body.store_id,
+          refID: isArray(main) ? main[0].store_id : main.store_id,
           message: `Customer record upload of ${
-            isArray(body) ? body.length : 1
+            isArray(main) ? main.length : 1
           } was succesfully`,
           email: user.email,
         })
@@ -90,11 +94,11 @@ const POST = async (req) => {
 
       return rs
     } else if (url === ISSUES) {
-      const bdy = isArray(body)
-        ? body.map((d) => {
+      const bdy = isArray(main)
+        ? main.map((d) => {
             return { ...d, uploaded_by: abbrv }
           })
-        : { ...body, uploaded_by: abbrv }
+        : { ...main, uploaded_by: abbrv }
       const rs = await TryAndCatch(IssueLoggerSchema, bdy, message)
       return rs
     }

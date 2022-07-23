@@ -50,8 +50,7 @@ exports.readCSVFile = async ({ req, res, next }) => {
     fs.unlinkSync(filePath)
     req.body = csv
     const bdy = bodyAppParser(req)
-    req.body = bdy
-
+    req.main = bdy
     return ControllerProcess({ req, res, next })
   })
 }

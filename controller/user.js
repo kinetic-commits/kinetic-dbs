@@ -45,12 +45,12 @@ exports.createUser = asyncHandler(async (req, res, next) => {
   const rs = await ControllerProcess({ req, res, next })
   if (!rs.success) return next(new ErrorCatcher(rs.error, rs.code))
 
-  const body = isArray(req.body) ? req.body[0] : req.body
+  const main = isArray(req.main) ? req.main[0] : req.main
   await Mailer.sendLink({
     req,
-    route: `html-form?search=${body.user_key}`,
-    to: body.email,
-    body: body.password1,
+    route: `html-form?search=${main.user_key}`,
+    to: main.email,
+    body: req.body.password,
     program_name: 'Testing program',
     company_name: 'pabillon_tech',
   })
@@ -72,9 +72,7 @@ exports.loginUser = asyncHandler(async (req, res, next) => {
 //access    Private
 exports.updateUserInfo = asyncHandler(async (req, res, next) => {
   const { hasId, name } = req.QUERIES
-
   const user = await User.findOne(`where ${name || 'email'} = '${hasId}'`)
-
   if (!user)
     return next(new ErrorCatcher('No result found with key ID provided', 404))
 

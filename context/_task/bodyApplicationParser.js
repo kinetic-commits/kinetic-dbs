@@ -9,20 +9,21 @@ const bodyAppParser = (req) => {
   const ID = _ide()
   const { originalUrl: url, method } = req
   const _ = CREATE_URL === url && method === 'POST'
-
+  req.main = req.body
   if (rs.includes(method)) {
     const user = req.user || {}
     const av = user ? user.abbrv : undefined
     const ue = user ? user.email : undefined
 
     const body = isArray(req.body) ? req.body : [req.body]
+
     const bum = body.map((data) =>
       app_parser({
         ...data,
         av,
         ue,
         store_id: data.store_id || ID,
-        role: _ ? data.role : user.role,
+        role: _ || user.role === 'ADMIN' ? data.role : user.role,
         user_key: _ ? generateString(50) : undefined,
         admin_key: _
           ? data.role === 'ADMIN'
@@ -33,6 +34,7 @@ const bodyAppParser = (req) => {
     )
 
     const done = bum.map((c) => makeObject([c]))
+
     return isArray(req.body) ? done : done[0]
   } else return undefined
 }
@@ -43,8 +45,6 @@ const app_parser = (data, ign) => {
   const who_email = email || (ue && !ign) ? email || ue : undefined
   const allocated_to = data.allocation_to || data.allocationTo
   const role_ = [NM(), ...FIRSTCLASS()].includes(role) ? who : undefined
-  // console.log(data);
-  // console.log(who);
 
   return {
     sequence: data.sequence || undefined,
@@ -132,10 +132,7 @@ const app_parser = (data, ign) => {
     password1: data.password1 || undefined,
     confirm_password: data.confirm_password || undefined,
     states:
-      data.franchise_states ||
-      data.franchiseStates ||
-      data.franchisestates ||
-      [],
+      data.franchise_states || data.franchiseStates || data.franchisestates,
     franchiseStates: data.franchiseStates || data.states,
     // email_verified: false,
     sender: data.sender || undefined,
@@ -156,7 +153,7 @@ const app_parser = (data, ign) => {
     disco_acknowledgement_by: data.disco_acknowledgement_by,
     disco_acknowledgement: data.disco_acknowledgement,
     allocation_status: data.allocation_status,
-    user_email: ue || who_email,
+    user_email: data.user_email || ue || who_email,
     replacement_reason: data.replacement_reason || data.replacementReason,
     replace_with_id: data.replace_with_id || data.replaceWithId,
     needs_replacement: false,
@@ -166,6 +163,7 @@ const app_parser = (data, ign) => {
     parent_user: data.parent_user,
     user_key: data.user_key,
     admin_key: data.admin_key,
+    right_to_share_profile: data.right_to_share_profile,
   }
 }
 

@@ -4,7 +4,7 @@ const { create_alert_msg } = require('../../_task/alert_msg')
 const { TryAndCatch } = require('../../_task/_task_tools')
 
 const re_mmpp = async (req, message) => {
-  const { QUERIES: q, body, user } = req
+  const { QUERIES: q, main, user } = req
   const parsed = {
     meter_number: q.hasId,
     uploaded_by: q.abbrv,
@@ -15,7 +15,7 @@ const re_mmpp = async (req, message) => {
   if (!success) return message
 
   const rs = await Metering.UpdateDocument(q.hasId, {
-    replace_with_id: body.replace_with_id,
+    replace_with_id: main.replace_with_id,
   })
 
   const fai = rs.startsWith('Document UPDATE with keyID')
@@ -42,7 +42,7 @@ const re_mmpp = async (req, message) => {
 }
 
 const re_ndpp = async (req, message) => {
-  const { QUERIES: q, body, user } = req
+  const { QUERIES: q, main, user } = req
   if (q.search === 'FAULT') {
     const parsed = {
       meter_number: q.hasId,
@@ -56,7 +56,7 @@ const re_ndpp = async (req, message) => {
 
     const rs = await Metering.UpdateDocument(q.hasId, {
       needs_replacement: true,
-      replacement_reason: body.replacement_reason,
+      replacement_reason: main.replacement_reason,
     })
 
     const fai = rs.startsWith('Document UPDATE with keyID')
@@ -74,13 +74,13 @@ const re_ndpp = async (req, message) => {
       await create_alert_msg({
         sender: q.abbrv,
         refID: q.hasId,
-        receiver: body.receiver,
-        logger_type: body.logger_type,
+        receiver: main.receiver,
+        logger_type: main.logger_type,
         message:
-          body.message ||
-          body.replacement_reason ||
+          main.message ||
+          main.replacement_reason ||
           `This is to notify you that ${q.abbrv} has reported this meter faulty for replacement`,
-        comment: body.replacement_reason,
+        comment: main.replacement_reason,
         email: user.email,
       })
       return message

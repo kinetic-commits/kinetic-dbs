@@ -1,5 +1,6 @@
 const Form74 = require('../../../model/CustomerData')
 const Metering = require('../../../model/Meter_Data')
+const { dateAndTime } = require('../../../utils/dateTime')
 const { isArray } = require('../../essentials/usables')
 const { create_alert_msg } = require('../../_task/alert_msg')
 const {
@@ -9,7 +10,7 @@ const {
 } = require('../../_task/_task_tools')
 
 exports.mmpp = async (req, message) => {
-  const { QUERIES: q, body, user } = req
+  const { QUERIES: q, main, user } = req
   if (q.search === 'ALLOCATE') {
     const parsed = {
       [q.name || 'carton_id']: q.hasId,
@@ -31,9 +32,10 @@ exports.mmpp = async (req, message) => {
     for (let i = 0; i < info.length; i++) {
       const meter = info[i]
       const rs = await Metering.UpdateDocument(meter.meterNumber, {
-        map_allocation_to: body.allocation_to,
-        destination_store: body.destination_store,
+        map_allocation_to: main.allocation_to,
+        destination_store: main.destination_store,
         allocation_status: 'Allocated',
+        allocation_date: dateAndTime().currentDate,
       })
       const fai = rs.startsWith('Document UPDATE with keyID')
       response.push({
@@ -50,7 +52,7 @@ exports.mmpp = async (req, message) => {
     if (message.success) {
       await create_alert_msg({
         sender: q.abbrv,
-        receiver: isArray(body) ? body[0].allocation_to : body.allocation_to,
+        receiver: isArray(main) ? main[0].allocation_to : main.allocation_to,
         logger_type: 'Metering Allocation',
         refID: isArray(info) ? info[0].store_id : info.store_id,
         message: resp,
@@ -64,14 +66,14 @@ exports.mmpp = async (req, message) => {
       uploaded_by: q.abbrv,
       limit: q.limit,
     }
-    return TryAndCatchUpdates(Metering, body, message, q.hasId, parsed)
+    return TryAndCatchUpdates(Metering, main, message, q.hasId, parsed)
   }
 
   return message
 }
 
 exports.ndpp = async (req, message) => {
-  const { QUERIES: q, body, user } = req
+  const { QUERIES: q, main, user } = req
   if (q.search === 'ALLOCATE') {
     const parsed = {
       [q.name || 'carton_id']: q.hasId,
@@ -94,7 +96,7 @@ exports.ndpp = async (req, message) => {
 
     for (let i = 0; i < info.length; i++) {
       const meter = info[i]
-      const f74 = body.allocation_customer_id || {}
+      const f74 = main.allocation_customer_id || {}
       const { data, ...exs } = await TryAndCatch(
         Form74,
         {
@@ -114,13 +116,14 @@ exports.ndpp = async (req, message) => {
 
       if (exs.success) {
         const rs_ = await Metering.UpdateDocument(meter.meterNumber, {
-          disco_allocation_to: body.disco_allocation_to,
+          disco_allocation_to: main.disco_allocation_to,
         })
 
         const rs = await Form74.UpdateDocument(data._id || data.customer_id, {
           has_allocation: true,
           meter_number: meter.meterNumber,
           meter_owner: meter.meterOwner,
+          allocation_date: dateAndTime().currentDate,
         })
 
         const fai =
@@ -146,9 +149,9 @@ exports.ndpp = async (req, message) => {
     if (message.success) {
       await create_alert_msg({
         sender: q.abbrv,
-        receiver: isArray(body)
-          ? body[0].disco_allocation_to
-          : body.disco_allocation_to,
+        receiver: isArray(main)
+          ? main[0].disco_allocation_to
+          : main.disco_allocation_to,
         logger_type: 'Metering Allocation',
         refID: isArray(info) ? info[0].store_id : info.store_id,
         message: resp,
@@ -162,7 +165,7 @@ exports.ndpp = async (req, message) => {
       map_allocation_to: q.abbrv,
       disco_acknowledgement_by: q.abbrv,
     }
-    return TryAndCatchUpdates(Metering, body, message, q.hasId, parsed)
+    return TryAndCatchUpdates(Metering, main, message, q.hasId, parsed)
   }
 
   return message
