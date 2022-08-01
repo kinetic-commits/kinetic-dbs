@@ -1,67 +1,80 @@
 const path = require('path')
+const fork = require('child_process').fork
 const fs = require('fs')
 const { csvGetter } = require('./essential')
-const { ResponseBack } = require('../context/_task/_task_tools')
 const ErrorCatcher = require('../utils/errorCatcher')
-const { bodyAppParser } = require('../context/_task/bodyApplicationParser')
-const ControllerProcess = require('../controller/Controller')
+const BulkLoader = require('../posgoose/BulkLoader')
 
 exports.readCSVFile = async ({ req, res, next }) => {
   const { user, files } = req || {}
-  const message = {
-    error: undefined,
-    success: false,
-    data: undefined,
-    code: 500,
-  }
-
-  if (!user) {
-    message.error = 'Unauthorized user'
-    return ResponseBack({ req, rs: message, res, next })
-  }
-  if (!files) {
-    message.error = 'Pleas upload a file'
-    return ResponseBack({ req, rs: message, res, next })
-  }
+  if (!user) return next(new ErrorCatcher('Unauthorized', 401))
+  if (!files) return next(new ErrorCatcher('Please upload a file', 400))
   const file = files.file
   const time = Date.now()
 
-  if (!file.mimetype === 'text/csv') {
-    message.error = 'Please upload a CSV file'
-    ;(message.code = 400), (message.success = false)
-    return ResponseBack({ req, rs: message, res, next })
-  }
+  if (!file.mimetype === 'text/csv')
+    return next(new ErrorCatcher('Please upload a CSV file', 400))
 
-  if (file.size > process.env.FILE_SIZE_MAX) {
-    message.error = `Please upload a file less than equal to: ${
-      process.env.FILE_SIZE_MAX / 1000000
-    }MB`
-    message.code = 400
-    message.success = false
-    return ResponseBack({ req, rs: message, res, next })
-  }
+  if (file.size > process.env.FILE_SIZE_MAX)
+    return next(
+      new ErrorCatcher(
+        `Please upload a file less than equal to: ${
+          process.env.FILE_SIZE_MAX / 1000000
+        }MB`,
+        400
+      )
+    )
+
   file.name = `file_${time}${path.parse(file.name).ext}`
-  // const filePath = `${process.env.FILE_UPLOAD_PATH}/${file.name}`
-  const filePath = path.join('./', 'public', 'uploads', `${file.name}`)
-
+  const filePath = `${process.env.FILE_UPLOAD_PATH}/${file.name}`
   file.mv(filePath, async (err) => {
     if (err) return next(new ErrorCatcher(err.message, 500))
-    const csv = csvGetter(filePath)
-    fs.unlinkSync(filePath)
-    req.body = csv
-    const bdy = bodyAppParser(req)
-    req.main = bdy
-    return ControllerProcess({ req, res, next })
+    req.bulk_path = filePath
+    const rl = new BulkLoader(req)
+    rl.readInChunk()
+
+    return next(new ErrorCatcher('Testing ongoing', 400))
+
+    // const csv = csvGetter(filePath)
+    // const { QUERIES, user, method, baseUrl, originalUrl } = req || {}
+    // const child_process = fork(path.join(__dirname + '/CsvUploadAndEvents.js'))
+    // child_process.send(
+    //   JSON.stringify({ QUERIES, body: csv, user, method, originalUrl, baseUrl })
+    // )
+    // child_process.on('message', (message) => {
+    //   const { success, data, code, error } = message
+    //   if (success) {
+    //     return res.status(code).json({ success, data })
+    //   } else {
+    //     return next(new ErrorCatcher(error, code))
+    //   }
+    // })
   })
+
+  /*
+    if (csv.length < 1)
+      return next(new ErrorCatcher('No document found in your file', 400))
+    req.body = csv
+    const rl = new BulkLoader(req)
+    const rs = await rl.create()
+
+    const { success, data, code, error } = rs || {}
+    if (success) {
+      return res.status(200).json({ success, data })
+    } else {
+      return next(new ErrorCatcher(error, code))
+    }
+  })
+  */
 }
 
-exports.imageUploads = async ({ req, schema, searchParams, field }) => {
+exports.imageUploads = async ({ req, schema, searchParams, field, action }) => {
   const time = new Date().getTime()
   const { QUERIES: q, user } = req
   const ID = searchParams
 
   if (!user) return { error: 'Unauthorized user', code: 401 }
-  if (user.isDisabled)
+  if (user.is_disabled)
     return {
       error: 'Error: Kindly contact system administrator',
       code: 401,

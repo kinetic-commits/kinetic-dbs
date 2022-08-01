@@ -1,4 +1,5 @@
 const { Pool, Client } = require('pg')
+const { dateAndTime } = require('../utils/dateTime')
 
 const {
   GetSchemaData,
@@ -39,6 +40,9 @@ Postgoose.prototype.Schema = function (item) {
 Postgoose.prototype.createConnection = async () => {
   const pool = new Pool({
     connectionString: process.env.DATABASE_URL,
+    max: 94,
+    connectionTimeoutMillis: 0,
+    idleTimeoutMillis: 0,
     ssl: {
       rejectUnauthorized: false,
       ca: process.env.CA,
@@ -52,9 +56,6 @@ Postgoose.prototype.createConnection = async () => {
   //   host: 'localhost',
   //   port: 5432,
   // })
-
-  this.pool = pool
-
   return pool
 }
 
@@ -84,7 +85,7 @@ Postgoose.prototype.create = async function (record) {
   )
 
   // Create Child Tables;
-  if (this.virtual.length > 0 && created) {
+  if (this.virtual.length > 0) {
     for (let i = 0; i < this.virtual.length; i++) {
       const v = this.virtual[i]
       const { rs: extract } = GetSchemaData(success, v.table_entries)
@@ -110,18 +111,23 @@ Postgoose.prototype.join = function () {
   return tabl
 }
 
-Postgoose.prototype.find = async function (where, select, strict) {
-  await this.isExist()
-  const pool = this.pool
+Postgoose.prototype.search = function (where, select, strict) {
   let tabl = this.join()
   const where_at = where ? this.mapThrough(where) : ''
   if (!where_at) throw new Error(`Expected valid string but got: ${where_at}`)
-  const rs = await pool.query(
-    `select ${select ? select : '*'} from ${this.schemaName} ${tabl} ${
-      where || strict ? where_at : ''
-    }`
-  )
 
+  const que = `select ${select ? select : '*'} from ${
+    this.schemaName
+  } ${tabl} ${where || strict ? where_at : ''}`
+  return que
+}
+
+Postgoose.prototype.find = async function (where, select, strict) {
+  await this.isExist()
+  const pool = this.pool
+  const que = this.search(where, select, strict)
+
+  const rs = await pool.query(que)
   const vr = this.virtual.length > 0 ? this.virtual[0].parentID : undefined
   const outgo = this.cb ? this.outGoings(rs.rows, this.cb, vr) : rs.rows
 
@@ -132,6 +138,22 @@ Postgoose.prototype.findOne = async function (where, select) {
   const rs = await this.find(where, select, true)
   this.data = rs
   return rs[0] || null
+}
+
+Postgoose.prototype.raw = async function ({ name, where, method, body }) {
+  if (!name || !where) return {}
+  !this.pool && (await this.isExist())
+  if (method === 'UPDATE') {
+    if (!body || !where) throw new Error('Please provide modification document')
+    const rs = await this.pool.query(`update ${name} set ${body} ${where}`)
+    return rs && `Document ${rs.command} successfully`
+  } else {
+    const que = `select * from ${name} ${where}`
+    const rs = await this.pool(que)
+    const vr = this.virtual.length > 0 ? this.virtual[0].parentID : undefined
+    const outgo = this.cb ? this.outGoings(rs.rows, this.cb, vr) : rs.rows
+    return outgo
+  }
 }
 
 Postgoose.prototype.UpdateDocument = async function (ID, data) {
@@ -148,7 +170,7 @@ Postgoose.prototype.UpdateDocument = async function (ID, data) {
   let rs
 
   const main = update_record_parser(data, this.schemaEntries)
-  console.log(main)
+
   if (main) {
     const { update } = KeyValuePairs(main)
     const rs0 = await pool.query(
@@ -244,10 +266,13 @@ Postgoose.prototype.isExist = async function () {
     }
   }
 
-  this.pool = this.pool || pool
+  this.pool = pool
 }
 
 Postgoose.prototype.createDefaults = async function (table_data) {
+  const p = 'PM',
+    a = 'AM',
+    spa = '202'
   const glob =
     this.global_now.length > 0
       ? this.global_now
@@ -256,12 +281,18 @@ Postgoose.prototype.createDefaults = async function (table_data) {
           })
           .filter((m) => m)[0]
       : undefined
-
   const cbs = isArray(table_data) ? table_data : [table_data]
   const result = cbs.map((v) => {
     if (isObject(glob)) {
       Object.keys(glob).forEach((x) => {
-        v[x] = v[x] || glob[x]
+        const lob = glob[x].toString()
+        v[x] =
+          v[x] ||
+          (lob.endsWith(p) || lob.endsWith(a)
+            ? dateAndTime().currentDate_time
+            : lob.startsWith(spa) && lob.length === 10
+            ? dateAndTime().currentDate
+            : glob[x])
       })
     }
     return v
@@ -358,6 +389,32 @@ Postgoose.prototype.aggregate = async function ({
   const rs = await pool.query(queries)
 
   return rs.rows
+}
+
+Postgoose.prototype.registeredTables = async function (record) {
+  if (!record || record.length < 1)
+    throw new Error('Valid data object is required')
+  const result = []
+
+  const data = await this.createDefaults(record)
+  this.data = data
+
+  const { errors: err, passed: success } = GetErrorAndPass(data, this.requires)
+  unique_string(err)
+
+  const { rs: response } = GetSchemaData(success, this.schemaEntries)
+  result.push({ table: response, schema: this.schemaName })
+
+  // Create Child Tables;
+  if (this.virtual.length > 0) {
+    for (let i = 0; i < this.virtual.length; i++) {
+      const v = this.virtual[i]
+      const { rs: extract } = GetSchemaData(success, v.table_entries)
+      result.push({ table: extract, schema: v.table })
+    }
+  }
+
+  return result
 }
 
 module.exports = Postgoose

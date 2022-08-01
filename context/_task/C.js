@@ -36,6 +36,7 @@ const POST = async (req) => {
   } = req
   const isExact = method === 'POST' && !QUERIES.search
   const { role, abbrv } = QUERIES
+
   const parse_main = isArray(main) ? main.length : 1
 
   if (parse_main <= 200000) {

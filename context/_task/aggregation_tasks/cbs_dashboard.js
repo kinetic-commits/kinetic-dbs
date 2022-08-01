@@ -38,7 +38,6 @@ const CBS_Aggs = async (req) => {
       })
 
       const rs = { ...rs_, role: ND(), doc_owner: owner.abbrv }
-
       tables.push(rs)
     }
   }
@@ -58,6 +57,7 @@ const CBS_Aggs = async (req) => {
     const unmetered_applicant = myFunc(
       disco_receivables.map((n) => n.customer_unallocated_stats)
     )
+    // console.log(disco_receivables)
     const disco_allocations = myFunc(
       disco_receivables.map((n) => n.outOfStoreCount)
     )
@@ -229,7 +229,20 @@ const CBS_Aggs = async (req) => {
       assets_exchange_match: allocation_unique_data,
       meters_transit: map_provision_with_transit,
       disco_provision,
+      map_provision,
+      customer_stats: disco_receivables.map((d) => {
+        return {
+          customer_count: d.customer_count,
+          customer_allocated_stats: d.customer_allocated_stats,
+          customer_allocated_data: d.customer_allocated_data,
+          customer_unallocated_stats: d.customer_unallocated_stats,
+          customer_unallocated_data: d.customer_unallocated_data,
+          doc_owner: d.doc_owner,
+          role: d.role,
+        }
+      }),
     }
+
     return rs
   } else return tables
 }

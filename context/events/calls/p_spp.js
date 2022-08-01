@@ -16,7 +16,7 @@ exports.mmps = async (req, message) => {
       refID: isArray(main) ? main[0].store_id : main.store_id,
       message: `Metering upload of ${
         isArray(main) ? main.length : 1
-      } was succesfully`,
+      } was successful`,
       email: user.email,
     })
   }
@@ -65,7 +65,7 @@ exports.ndps = async (req, message) => {
       logger_type: 'Meter Uploaded to Virtual Store',
       message: `Metering upload of ${
         isArray(main) ? main.length : 1
-      } was succesfully`,
+      } was successful`,
       email: user.email,
     })
   }

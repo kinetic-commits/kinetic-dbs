@@ -1,10 +1,10 @@
 const cluster = require('cluster')
 const { verifyEmail } = require('./context/events/calls/SendMail')
-const os_length = require('os').cpus().length
-// const os_length = 1
+const run_on = require('os').cpus().length
+// const run_on = os_length > 7 ? os_length : 1
 
 if (cluster.isMaster) {
-  for (let i = 0; i < os_length; i++) {
+  for (let i = 0; i < run_on; i++) {
     cluster.fork()
   }
 } else {

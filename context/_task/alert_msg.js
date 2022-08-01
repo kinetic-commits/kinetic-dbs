@@ -1,5 +1,5 @@
 const IssueLoggerSchema = require('../../model/IssueLogger')
-const { _transformerID, _ide } = require('../../utils/idGen')
+const { _transformerID, _accountID: _ide } = require('../../utils/idGen')
 
 const create_alert_msg = async ({
   sender,

@@ -371,7 +371,7 @@ const map_dashboard_config = async ({ req, rol_, meters, applicant }) => {
 
   // console.log(disco_provision);
 
-  // console.log(summary);
+  // console.log(summary)
 
   return summary
 }
